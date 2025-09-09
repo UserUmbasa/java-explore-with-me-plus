@@ -27,8 +27,8 @@ services:
       timeout: 10s
       retries: 5
 
-  ewm-server:
-    build: ewm-server
+  ewm-service:
+    build: ewm-service
     image: with_me_plus-ewm
     container_name: with_me_plus-ewm
     ports:
