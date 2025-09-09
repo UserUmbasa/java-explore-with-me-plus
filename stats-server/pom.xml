@@ -3,21 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.5</version>
-        <relativePath/>
+        <artifactId>explore-with-me</artifactId>
+        <groupId>ru.practicum</groupId>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
-
-    <groupId>ru.practicum</groupId>
-    <artifactId>stats-server-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>stats-server</artifactId>
     <packaging>pom</packaging>
-    <name>Stats Server Parent</name>
-    <description>Parent module for Stats Server</description>
 
     <modules>
-        <module>stats-server-app</module>
         <module>dto</module>
         <module>service</module>
         <module>client</module>
@@ -27,3 +20,4 @@
         <java.version>21</java.version>
     </properties>
 </project>
+
