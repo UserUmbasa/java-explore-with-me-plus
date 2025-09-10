@@ -22,11 +22,11 @@ services:
       - POSTGRES_PASSWORD=test
       - POSTGRES_USER=test
       - POSTGRES_DB=stats
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stats"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U stats"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
 
   ewm-service:
     build: main-service
@@ -51,8 +51,8 @@ services:
       - POSTGRES_PASSWORD=ewm
       - POSTGRES_USER=ewm
       - POSTGRES_DB=ewm
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ewm"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U ewm"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
