@@ -15,32 +15,44 @@ services:
 
   stats-db:
     image: postgres:16.1
-    container_name: stats-db
     ports:
-      - "5433:5432"  # Изменен порт для избежания конфликта
+      - "5433:5432"
+    container_name: stats-postgres
     environment:
       - POSTGRES_PASSWORD=test
       - POSTGRES_USER=test
       - POSTGRES_DB=stats
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-  ewm-service:
+  ewm-server:
     build: main-service
-    image: explore-with-me-main-service
-    container_name: explore-with-me-main-service
+    image: with_me_plus-ewm
+    container_name: with_me_plus-ewm
     ports:
       - "8080:8080"
     depends_on:
       - ewm-db
       - stats-server
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm_main
-      - SPRING_DATASOURCE_USERNAME=test
-      - SPRING_DATASOURCE_PASSWORD=test
-      - STATS_SERVER_URL=http://stats-server:9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
+      - SPRING_DATASOURCE_USERNAME=ewm
+      - SPRING_DATASOURCE_PASSWORD=ewm
 
   ewm-db:
     image: postgres:16.1
+    ports:
+      - "5434:5432"
+    container_name: ewm-postgres
     environment:
-      - POSTGRES_PASSWORD=test
-      - POSTGRES_USER=test
-      - POSTGRES_DB=ewm_main
+      - POSTGRES_PASSWORD=ewm
+      - POSTGRES_USER=ewm
+      - POSTGRES_DB=ewm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ewm"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
