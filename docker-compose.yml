@@ -88,7 +88,7 @@ services:
       interval: 5s
       retries: 10
 
-  ewm-service:
+  main-service:
     build:
       context: main-service
       dockerfile: Dockerfile
