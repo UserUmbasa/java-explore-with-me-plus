@@ -29,29 +29,37 @@ services:
 #      timeout: 10s
 #      retries: 5
 
+#  ewm-service:
+#    build: main-service
+#    image: with_me_plus-ewm
+#    container_name: with_me_plus-ewm
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - ewm-db
+#      - stats-server
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
+#      - SPRING_DATASOURCE_USERNAME=ewm
+#      - SPRING_DATASOURCE_PASSWORD=ewm
   ewm-service:
-    build: main-service
-    image: with_me_plus-ewm
-    container_name: with_me_plus-ewm
     ports:
       - "8080:8080"
-    depends_on:
-      - ewm-db
-      - stats-server
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
-      - SPRING_DATASOURCE_USERNAME=ewm
-      - SPRING_DATASOURCE_PASSWORD=ewm
 
   ewm-db:
     image: postgres:16.1
-    ports:
-      - "5432:5432"
-    container_name: ewm-postgres
-    environment:
-      - POSTGRES_PASSWORD=ewm
-      - POSTGRES_USER=ewm
-      - POSTGRES_DB=ewm
+
+
+
+#  ewm-db:
+#    image: postgres:16.1
+#    ports:
+#      - "5432:5432"
+#    container_name: ewm-postgres
+#    environment:
+#      - POSTGRES_PASSWORD=ewm
+#      - POSTGRES_USER=ewm
+#      - POSTGRES_DB=ewm
 #    healthcheck:
 #      test: ["CMD-SHELL", "pg_isready -U ewm"]
 #      interval: 30s
