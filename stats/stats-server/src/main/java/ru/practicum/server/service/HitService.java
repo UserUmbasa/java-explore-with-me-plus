@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.EndpointHitDTO;
 import ru.practicum.dto.ViewStatsDTO;
-import ru.practicum.server.mapper.HitMapper;
 import ru.practicum.server.model.Hit;
 import ru.practicum.server.repository.HitRepository;
 
@@ -20,12 +19,17 @@ import java.util.List;
 public class HitService {
 
     private final HitRepository hitRepository;
-    private final HitMapper hitMapper;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Transactional
     public void createHit(EndpointHitDTO endpointHitDTO) {
-        Hit hit = hitMapper.mapToHit(endpointHitDTO);
+        Hit hit = Hit.builder()
+                .app(endpointHitDTO.getApp())
+                .uri(endpointHitDTO.getUri())
+                .ip(endpointHitDTO.getIp())
+                .timestamp(LocalDateTime.parse(endpointHitDTO.getTimestamp(), FORMATTER))
+                .build();
+
         hitRepository.save(hit);
         log.info("Hit saved: {}", hit);
     }
