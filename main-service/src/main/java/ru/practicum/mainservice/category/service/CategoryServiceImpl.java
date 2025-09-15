@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.mainservice.Exception.DuplicateException;
 import ru.practicum.mainservice.Exception.NotFoundException;
 import ru.practicum.mainservice.category.dto.CategoryDto;
 import ru.practicum.mainservice.category.model.Category;
@@ -23,6 +24,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto saveCategory(CategoryDto category) {
+        if (categoryRepository.existsByName(category.getName())){
+            throw new DuplicateException("такая категория уже есть");
+        }
         Category result = categoryRepository.save(dtoModelMapper.mapToCategory(category));
         return dtoModelMapper.mapToCategoryDto(result);
     }
@@ -30,6 +34,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto update(Long catId, CategoryDto category) {
+        if (categoryRepository.existsByName(category.getName())){
+            throw new DuplicateException("такая категория уже есть");
+        }
         Category result = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("такой категории нет"));
         result.setName(category.getName());
         return dtoModelMapper.mapToCategoryDto(result);
