@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> FindUsers(List<Long> ids, Long from, Long size) {
+    public List<UserDto> findUsers(List<Long> ids, Long from, Long size) {
         if (ids != null) {
             List<User> result = userRepository.findAllById(ids);
             return result.stream().map(dtoModelMapper::mapToUserDto).toList();

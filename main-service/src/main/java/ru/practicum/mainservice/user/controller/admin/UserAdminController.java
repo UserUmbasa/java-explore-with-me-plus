@@ -22,10 +22,10 @@ public class UserAdminController {
     }
 
     @GetMapping
-    public List<UserDto> FindUsers(@RequestParam(required = false) List<Long> ids,
+    public List<UserDto> findUsers(@RequestParam(required = false) List<Long> ids,
                                    @RequestParam(defaultValue = "0") Long from,
                                    @RequestParam(defaultValue = "10") Long size) {
-        return userService.FindUsers(ids, from, size);
+        return userService.findUsers(ids, from, size);
     }
 
     @DeleteMapping("/{userId}")

@@ -8,7 +8,7 @@ public interface UserService {
 
     UserDto saveUser(UserDto user);
 
-    List<UserDto> FindUsers(List<Long> ids, Long from, Long size);
+    List<UserDto> findUsers(List<Long> ids, Long from, Long size);
 
     void delete(Long userId);
 }

@@ -24,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto saveCategory(CategoryDto category) {
-        if (categoryRepository.existsByName(category.getName())){
+        if (categoryRepository.existsByName(category.getName())) {
             throw new DuplicateException("такая категория уже есть");
         }
         Category result = categoryRepository.save(dtoModelMapper.mapToCategory(category));
@@ -34,7 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto update(Long catId, CategoryDto category) {
-        if (categoryRepository.existsByName(category.getName())){
+        if (categoryRepository.existsByName(category.getName())) {
             throw new DuplicateException("такая категория уже есть");
         }
         Category result = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("такой категории нет"));
