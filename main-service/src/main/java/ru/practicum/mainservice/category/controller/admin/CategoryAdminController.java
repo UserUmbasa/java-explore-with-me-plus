@@ -1,6 +1,5 @@
 package ru.practicum.mainservice.category.controller.admin;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -17,14 +16,19 @@ public class CategoryAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Transactional
-    public CategoryDto addCategory(@Validated(Marker.OnUpdate.class) @RequestBody CategoryDto category) {
+    public CategoryDto addCategory(@Validated(Marker.OnCreate.class) @RequestBody CategoryDto category) {
         return categoryService.saveCategory(category);
     }
 
     @PatchMapping("/{catId}")
-    @Transactional
-    public CategoryDto updateCategory(@PathVariable Long catId, @RequestBody CategoryDto category) {
+    public CategoryDto updateCategory(@PathVariable Long catId,
+                                      @Validated(Marker.OnUpdate.class) @RequestBody CategoryDto category) {
         return categoryService.update(catId, category);
+    }
+
+    @DeleteMapping("/{catId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long catId) {
+        categoryService.delete(catId);
     }
 }
