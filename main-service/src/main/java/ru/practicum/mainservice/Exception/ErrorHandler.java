@@ -19,15 +19,15 @@ public class ErrorHandler {
         return new ErrorResponseTemplate(e.getMessage());
     }
 
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    public ErrorResponseTemplate handleNotFoundException(final NotFoundException e) {
-//        return new ErrorResponseTemplate(e.getMessage());
-//    }
-//
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public ErrorResponseTemplate handleInternalError(final Throwable e) {
-//        return new ErrorResponseTemplate(e.getMessage());
-//    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponseTemplate handleNotFoundException(final NotFoundException e) {
+        return new ErrorResponseTemplate(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseTemplate handleInternalError(final Throwable e) {
+        return new ErrorResponseTemplate(e.getMessage());
+    }
 }
