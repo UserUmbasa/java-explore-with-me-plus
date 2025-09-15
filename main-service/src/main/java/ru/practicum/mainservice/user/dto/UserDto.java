@@ -3,8 +3,8 @@ package ru.practicum.mainservice.user.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import ru.practicum.mainservice.Exception.validation.CustomEmail;
-import ru.practicum.mainservice.Exception.validation.Marker;
+import ru.practicum.mainservice.exception.validation.CustomEmail;
+import ru.practicum.mainservice.exception.validation.Marker;
 
 @Data
 public class UserDto {

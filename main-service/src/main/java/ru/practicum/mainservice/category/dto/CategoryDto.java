@@ -3,7 +3,7 @@ package ru.practicum.mainservice.category.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import ru.practicum.mainservice.Exception.validation.Marker;
+import ru.practicum.mainservice.exception.validation.Marker;
 
 @Data
 public class CategoryDto {

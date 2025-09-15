@@ -5,13 +5,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.mainservice.Exception.DuplicateException;
-import ru.practicum.mainservice.Exception.NotFoundException;
+import ru.practicum.mainservice.exception.DuplicateException;
+import ru.practicum.mainservice.exception.NotFoundException;
 import ru.practicum.mainservice.mapper.DtoModelMapper;
 import ru.practicum.mainservice.user.dto.UserDto;
 import ru.practicum.mainservice.user.model.User;
 import ru.practicum.mainservice.user.repository.UserRepository;
-import ru.practicum.statsclient.client.StatsClient;
 
 import java.util.List;
 

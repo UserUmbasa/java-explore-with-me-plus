@@ -1,10 +1,10 @@
-package ru.practicum.mainservice.user.controller;
+package ru.practicum.mainservice.user.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.mainservice.Exception.validation.Marker;
+import ru.practicum.mainservice.exception.validation.Marker;
 import ru.practicum.mainservice.user.dto.UserDto;
 import ru.practicum.mainservice.user.service.UserService;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/admin/users")
-public class UserController {
+public class UserAdminController {
     private final UserService userService;
 
     @PostMapping

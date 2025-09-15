@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.Exception.validation;
+package ru.practicum.mainservice.exception.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.Exception.validation;
+package ru.practicum.mainservice.exception.validation;
 
 public interface Marker {
 

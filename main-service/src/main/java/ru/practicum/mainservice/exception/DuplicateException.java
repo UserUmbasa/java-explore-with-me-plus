@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.Exception;
+package ru.practicum.mainservice.exception;
 
 public class DuplicateException extends RuntimeException {
     public DuplicateException(String message) {
