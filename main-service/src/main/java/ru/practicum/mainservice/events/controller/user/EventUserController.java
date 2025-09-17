@@ -19,7 +19,6 @@ public class EventUserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto addEvent(@Validated(Marker.OnCreate.class) @RequestBody NewEventDto event,
                             @PathVariable Long userId) {
-        return eventService.saveEvent(event);
-
+        return eventService.saveEvent(userId, event);
     }
 }

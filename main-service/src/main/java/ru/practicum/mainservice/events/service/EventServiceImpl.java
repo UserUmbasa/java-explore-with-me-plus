@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainservice.events.dto.NewEventDto;
 import ru.practicum.mainservice.events.repository.EventRepository;
 import ru.practicum.mainservice.mapper.DtoModelMapper;
-import ru.practicum.mainservice.user.dto.UserDto;
+import ru.practicum.mainservice.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -14,9 +14,10 @@ import ru.practicum.mainservice.user.dto.UserDto;
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final DtoModelMapper dtoModelMapper;
+    private final UserRepository userRepository;
 
     @Override
-    public UserDto saveEvent(NewEventDto event) {
+    public NewEventDto saveEvent(Long userId, NewEventDto event) {
         return null;
     }
 }
