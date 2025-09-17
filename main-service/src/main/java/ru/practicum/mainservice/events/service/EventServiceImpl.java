@@ -3,6 +3,7 @@ package ru.practicum.mainservice.events.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.NewEventDto;
 import ru.practicum.mainservice.events.repository.EventRepository;
 import ru.practicum.mainservice.mapper.DtoModelMapper;
@@ -17,7 +18,8 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
 
     @Override
-    public NewEventDto saveEvent(Long userId, NewEventDto event) {
-        return null;
+    public EventFullDto saveEvent(Long userId, NewEventDto event) {
+
+        return new EventFullDto();
     }
 }
