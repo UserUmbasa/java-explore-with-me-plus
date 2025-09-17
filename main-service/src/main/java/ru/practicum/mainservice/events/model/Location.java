@@ -1,5 +1,4 @@
-package ru.practicum.mainservice.events.dto;
-
+package ru.practicum.mainservice.events.model;
 import lombok.Data;
 
 @Data
