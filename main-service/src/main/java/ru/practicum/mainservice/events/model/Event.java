@@ -16,43 +16,53 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "annotation", nullable = false, length = 2000)
     private String annotation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category categoryId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
+    @Column(name = "confirmed_requests", nullable = false)
     private Long confirmedRequests = 0L;
 
-    @JoinColumn(name = "created_on")
+    @Column(name = "created_on")
     private LocalDateTime createdOn;
 
+    @Column(name = "description", nullable = false, length = 7000)
     private String description;
 
-    @JoinColumn(name = "event_date")
+    @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "initiator_id")
-    private User initiatorId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "initiator_id", nullable = false)
+    private User initiator;
 
-    @JoinColumn(name = "location_id")
-    private Long locationId;
+    @Column(name = "location_lat", nullable = false)
+    private Double locationLat;
+
+    @Column(name = "location_lon", nullable = false)
+    private Double locationLon;
 
     private Boolean paid;
 
-    @JoinColumn(name = "participant_limit")
+    @Column(name = "participant_limit", nullable = false)
     private Long participantLimit;
 
-    @JoinColumn(name = "published_on")
+    @Column(name = "published_on")
     private LocalDateTime publishedOn;
 
-    @JoinColumn(name = "request_moderation")
+    @Column(name = "request_moderation")
     private Boolean requestModeration;
 
+    @Column(name = "state", nullable = false, length = 512)
     private State state;
 
+    @Column(name = "title", nullable = false, length = 512)
     private String title;
 
-    private Long views;
-
+    @Column(name = "views")
+    private Long views = 0L;
 }

@@ -1,4 +1,5 @@
 package ru.practicum.mainservice.events.model;
+
 import lombok.Data;
 
 @Data
