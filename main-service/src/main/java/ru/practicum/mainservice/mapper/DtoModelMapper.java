@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import ru.practicum.mainservice.category.dto.CategoryDto;
 import ru.practicum.mainservice.category.model.Category;
 import ru.practicum.mainservice.events.dto.EventFullDto;
+import ru.practicum.mainservice.events.dto.EventShortDto;
 import ru.practicum.mainservice.events.dto.NewEventDto;
 import ru.practicum.mainservice.events.model.Event;
 import ru.practicum.mainservice.events.model.State;
@@ -40,5 +41,13 @@ public abstract class DtoModelMapper {
         return result;
     };
 
+    @Mapping(source = "initiator.id", target = "initiator")
+    @Mapping(source = "locationLat", target = "location.lat")
+    @Mapping(source = "locationLon", target = "location.lon")
     public abstract EventFullDto mapToEventFullDto(Event event);
+
+    @Mapping(source = "locationLat", target = "location.lat")
+    @Mapping(source = "locationLon", target = "location.lon")
+    @Mapping(source = "initiator.id", target = "initiator")
+    public abstract EventShortDto mapToEventShortDto(Event event);
 }

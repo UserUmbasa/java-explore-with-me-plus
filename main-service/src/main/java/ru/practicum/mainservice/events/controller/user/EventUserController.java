@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.mainservice.events.dto.EventFullDto;
+import ru.practicum.mainservice.events.dto.EventShortDto;
 import ru.practicum.mainservice.events.dto.NewEventDto;
 import ru.practicum.mainservice.events.service.EventService;
 import ru.practicum.mainservice.exception.validation.Marker;
@@ -17,8 +17,8 @@ public class EventUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto addEvent(@Validated(Marker.OnCreate.class) @RequestBody NewEventDto event,
-                                 @PathVariable Long userId) {
+    public EventShortDto addEvent(@Validated(Marker.OnCreate.class) @RequestBody NewEventDto event,
+                                  @PathVariable Long userId) {
         return eventService.saveEvent(userId, event);
     }
 }

@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class NewEventDto {
-    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @NotBlank(groups = Marker.OnCreate.class, message = "annotation не должна быть пустой или null")
     @Size(groups = Marker.OnCreate.class, min = 20, max = 2000, message = "Длина annotation должна быть от 20 до 2000 символов")
@@ -27,7 +26,7 @@ public class NewEventDto {
 
     @NotNull(message = "не должно быть null")
     @Future(message = "нельзя создать в прошлом")
-    @JsonFormat(pattern = DATE_TIME_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
     @NotNull(message = "не должно быть null")
