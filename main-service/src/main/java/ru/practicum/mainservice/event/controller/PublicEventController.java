@@ -9,18 +9,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.dto.EndpointHitDTO;
 import ru.practicum.mainservice.event.dto.EventDtoOut;
 import ru.practicum.mainservice.event.dto.EventShortDtoOut;
 import ru.practicum.mainservice.event.model.EventFilter;
 import ru.practicum.mainservice.event.model.EventState;
 import ru.practicum.mainservice.event.service.EventService;
 import ru.practicum.mainservice.exception.InvalidRequestException;
+import ru.practicum.statsclient.client.StatsClient;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
 import static ru.practicum.mainservice.constants.Constants.DATE_TIME_FORMAT;
+import static ru.practicum.mainservice.constants.Constants.STATS_EVENTS_URL;
 
 @Slf4j
 @Validated
@@ -30,10 +33,7 @@ import static ru.practicum.mainservice.constants.Constants.DATE_TIME_FORMAT;
 public class PublicEventController {
 
     private final EventService eventService;
-//    private final StatsClient statsClient;
-
-    @Value("${spring.application.name:ewm}")
-    private String appName;
+    //private final StatsClient statsClient;
 
     // Получение событий с возможностью фильтрации
     @GetMapping
@@ -73,10 +73,6 @@ public class PublicEventController {
         Collection<Long> ids = events.stream()
                 .map(EventShortDtoOut::getId)
                 .toList();
-
-//        writeStatisticsByIds(ids, request.getRemoteAddr());
-//        writeStatisticsByUris(List.of("/events"), request.getRemoteAddr());
-
         return events;
     }
 
@@ -86,23 +82,6 @@ public class PublicEventController {
 
         log.debug("request for published event id:{}", eventId);
         EventDtoOut dtoOut = eventService.findPublished(eventId);
-
-//        writeStatisticsByIds(List.of(eventId), request.getRemoteAddr());
-
         return dtoOut;
     }
-
-//    private void writeStatisticsByIds(Collection<Long> ids, String ip) {
-//        writeStatisticsByUris(ids.stream().map(id -> STATS_EVENTS_URL + id).toList(), ip);
-//    }
-
-//    private void writeStatisticsByUris(Collection<String> uris, String ip) {
-//        try {
-//            for (String uri : uris)
-//                statsClient.hit(appName, uri, ip);
-//
-//        } catch (StatsClientException ex) {
-//            log.error(ex.getMessage());
-//        }
-//    }
 }

@@ -24,7 +24,6 @@ public class PrivateEventController {
 
     private final EventService eventService;
 
-    // Получение событий, добавленных текущим пользователем
     @GetMapping("/{userId}/events")
     public Collection<EventShortDtoOut> getEventsCreatedByUser(
             @PathVariable @Min(1) Long userId,
@@ -36,7 +35,6 @@ public class PrivateEventController {
         return eventService.findByInitiator(userId, offset, limit);
     }
 
-    // Добавление нового события
     @PostMapping("/{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
     public EventDtoOut createEvent(@PathVariable @Min(1) Long userId,
@@ -45,7 +43,6 @@ public class PrivateEventController {
         return eventService.add(userId, eventDto);
     }
 
-    // Обновление события
     @PatchMapping("/{userId}/events/{eventId}")
     public EventDtoOut updateEvent(
             @PathVariable @Min(1) Long userId,
@@ -55,7 +52,6 @@ public class PrivateEventController {
         return eventService.update(userId, eventId, eventDto);
     }
 
-    // Получение события по ID
     @GetMapping("/{userId}/events/{eventId}")
     public EventDtoOut getEventById(@PathVariable @Min(1) Long userId,
                                     @PathVariable @Min(1) Long eventId) {
