@@ -33,7 +33,7 @@ import static ru.practicum.mainservice.constants.Constants.STATS_EVENTS_URL;
 public class PublicEventController {
 
     private final EventService eventService;
-    //private final StatsClient statsClient;
+    private final StatsClient statsClient;
 
     // Получение событий с возможностью фильтрации
     @GetMapping
