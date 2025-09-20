@@ -156,6 +156,7 @@ public class EventServiceImpl implements EventService {
         enrichWithConfirmedRequestsCount(List.of(event));
 //        enrichWithViewsCount(List.of(event));
 
+        event.setViews(event.getViews() + 1);
         return EventMapper.toDto(event);
     }
 
@@ -254,8 +255,8 @@ public class EventServiceImpl implements EventService {
 
         List<Long> ids = events.stream().map(Event::getId).toList();
         List<RequestsCount> requestsCounts = requestRepository.countConfirmedRequestsForEvents(ids);
-        if (requestsCounts.isEmpty())
-            return;
+//        if (requestsCounts.isEmpty())
+//            return;
 
         Map<Long, Integer> counts = requestsCounts
                 .stream()
