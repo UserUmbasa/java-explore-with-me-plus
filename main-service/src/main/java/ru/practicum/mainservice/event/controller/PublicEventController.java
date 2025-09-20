@@ -14,14 +14,12 @@ import ru.practicum.mainservice.event.model.EventFilter;
 import ru.practicum.mainservice.event.model.EventState;
 import ru.practicum.mainservice.event.service.EventService;
 import ru.practicum.mainservice.exception.InvalidRequestException;
-import ru.practicum.statsclient.client.StatsClient;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
 import static ru.practicum.mainservice.constants.Constants.DATE_TIME_FORMAT;
-import static ru.practicum.mainservice.constants.Constants.STATS_EVENTS_URL;
 
 @Slf4j
 @Validated
@@ -31,9 +29,7 @@ import static ru.practicum.mainservice.constants.Constants.STATS_EVENTS_URL;
 public class PublicEventController {
 
     private final EventService eventService;
-    private final StatsClient statsClient;
 
-    // Получение событий с возможностью фильтрации
     @GetMapping
     public Collection<EventShortDtoOut> getEvents(
             @Size(min = 3, max = 1000, message = "Текст должен быть длиной от 3 до 1000 символов")

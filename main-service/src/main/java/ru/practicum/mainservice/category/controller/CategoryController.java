@@ -34,8 +34,6 @@ public class CategoryController {
         return categoryService.get(id);
     }
 
-
-
     @PostMapping("/admin/categories")
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDtoOut createCategory(@Validated @RequestBody CategoryDto categoryDto) {

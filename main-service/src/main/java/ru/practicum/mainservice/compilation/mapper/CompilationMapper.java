@@ -1,6 +1,5 @@
 package ru.practicum.mainservice.compilation.mapper;
 
-
 import lombok.experimental.UtilityClass;
 import ru.practicum.mainservice.compilation.dto.CompilationDto;
 import ru.practicum.mainservice.compilation.dto.NewCompilationDto;

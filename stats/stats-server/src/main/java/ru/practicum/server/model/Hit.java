@@ -2,8 +2,13 @@ package ru.practicum.server.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.*;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity

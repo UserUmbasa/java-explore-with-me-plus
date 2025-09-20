@@ -14,21 +14,21 @@ public interface EventRepository extends
         JpaSpecificationExecutor<Event> {
 
     @Query(value = """
-        SELECT * FROM events
-        WHERE initiator_id = :userId
-        ORDER BY id
-        LIMIT :limit
-        OFFSET :offset
-        """, nativeQuery = true)
+            SELECT * FROM events
+            WHERE initiator_id = :userId
+            ORDER BY id
+            LIMIT :limit
+            OFFSET :offset
+            """, nativeQuery = true)
     Collection<Event> findByInitiatorId(
             @Param("userId") Long userId,
             @Param("offset") int offset,
             @Param("limit") int limit);
 
     @Query(value = """
-        SELECT e FROM Event e
-        WHERE e.id = :id AND e.state = 'PUBLISHED'
-        """)
+            SELECT e FROM Event e
+            WHERE e.id = :id AND e.state = 'PUBLISHED'
+            """)
     Optional<Event> findPublishedById(@Param("id") Long id);
 
     boolean existsByCategoryId(Long categoryId);

@@ -24,7 +24,12 @@ import ru.practicum.mainservice.user.model.User;
 import ru.practicum.mainservice.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.*;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,9 +46,6 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ParticipationRequestRepository requestRepository;
-
-    //private final StatsClient statsClient;
-
 
     @Override
     @Transactional
@@ -102,7 +104,7 @@ public class EventServiceImpl implements EventService {
         if (eventDto.getStateAction() != null) {
             switch (eventDto.getStateAction()) {
                 case SEND_TO_REVIEW -> event.setState(EventState.PENDING);
-                case CANCEL_REVIEW  -> event.setState(EventState.CANCELED);
+                case CANCEL_REVIEW -> event.setState(EventState.CANCELED);
             }
         }
 
@@ -113,9 +115,6 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDtoOut update(Long eventId, EventUpdateAdminDto eventDto) {
-
-        // дата начала изменяемого события должна быть не ранее чем за час от даты публикации.
-        // (Ожидается код ошибки 409)
 
         Event event = getEvent(eventId);
 
@@ -130,19 +129,16 @@ public class EventServiceImpl implements EventService {
         });
         Optional.ofNullable(eventDto.getParticipantLimit()).ifPresent(event::setParticipantLimit);
         Optional.ofNullable(eventDto.getRequestModeration()).ifPresent(event::setRequestModeration);
-
         if (eventDto.getEventDate() != null) {
             validateEventDate(eventDto.getEventDate(), event.getState());
             event.setEventDate(eventDto.getEventDate());
         }
-
         if (eventDto.getStateAction() != null) {
             switch (eventDto.getStateAction()) {
                 case PUBLISH_EVENT -> publishEvent(event);
                 case REJECT_EVENT -> rejectEvent(event);
             }
         }
-
         Event saved = eventRepository.save(event);
         return EventMapper.toDto(saved);
     }
@@ -152,10 +148,7 @@ public class EventServiceImpl implements EventService {
 
         Event event = eventRepository.findPublishedById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event", eventId));
-
         enrichWithConfirmedRequestsCount(List.of(event));
-//        enrichWithViewsCount(List.of(event));
-
         event.setViews(event.getViews() + 1);
         return EventMapper.toDto(event);
     }
@@ -165,16 +158,11 @@ public class EventServiceImpl implements EventService {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User", userId);
         }
-
         Event event = getEvent(eventId);
-
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NoAccessException("Only initiator can view this event");
         }
-
         enrichWithConfirmedRequestsCount(List.of(event));
-    //    enrichWithViewsCount(List.of(event));
-
         return EventMapper.toDto(event);
     }
 
@@ -198,7 +186,6 @@ public class EventServiceImpl implements EventService {
     private Collection<Event> findBy(Specification<Event> spec, Pageable pageable) {
         Collection<Event> events = eventRepository.findAll(spec, pageable).getContent();
         enrichWithConfirmedRequestsCount(events);
-//        enrichWithViewsCount(events);
         return events;
     }
 
@@ -242,7 +229,6 @@ public class EventServiceImpl implements EventService {
 
         Collection<Event> events = eventRepository.findByInitiatorId(userId, offset, limit);
         enrichWithConfirmedRequestsCount(events);
-//        enrichWithViewsCount(events);
 
         return events.stream()
                 .map(EventMapper::toShortDto)
@@ -255,8 +241,6 @@ public class EventServiceImpl implements EventService {
 
         List<Long> ids = events.stream().map(Event::getId).toList();
         List<RequestsCount> requestsCounts = requestRepository.countConfirmedRequestsForEvents(ids);
-//        if (requestsCounts.isEmpty())
-//            return;
 
         Map<Long, Integer> counts = requestsCounts
                 .stream()
@@ -269,53 +253,6 @@ public class EventServiceImpl implements EventService {
         );
     }
 
-//    private void enrichWithViewsCount(Collection<Event> events) {
-//        if (events.isEmpty())
-//            return;
-//
-//        Map<Long, Integer> hitsMap = getStatistics(events.stream()
-//                .map(Event::getId)
-//                .toList());
-//
-//        if (hitsMap.isEmpty())
-//            return;
-//
-//        events.forEach(dto ->
-//                dto.setViews(hitsMap.getOrDefault(dto.getId(), 0))
-//        );
-//    }
-
-//    private Map<Long, Integer> getStatistics(Collection<Long> ids) {
-//        Collection<StatsDtoOut> stats = List.of();
-//        if (ids.isEmpty())
-//            return Map.of();
-//
-//        try {
-//            stats = statsClient.getStats(
-//                    LocalDateTime.now().minusYears(10),
-//                    LocalDateTime.now().plusYears(10),
-//                    ids.stream().map(id -> STATS_EVENTS_URL + id).toList(),
-//                    true);
-//        } catch (StatsClientException ex) {
-//            log.error(ex.getMessage());
-//        }
-//
-//        if (stats.isEmpty())
-//            return Map.of();
-//
-//        Map<String, Integer> hits = stats.stream()
-//                .collect(Collectors.toMap(
-//                        StatsDtoOut::getUri,
-//                        StatsDtoOut::getHits
-//                ));
-//
-//        return ids.stream()
-//                .collect(Collectors.toMap(
-//                        num -> num,
-//                        num -> hits.getOrDefault(STATS_EVENTS_URL + num, 0)
-//                ));
-//    }
-
     private void validateEventDate(LocalDateTime eventDate, EventState state) {
         if (eventDate == null) {
             throw new IllegalArgumentException("eventDate is null");
@@ -327,7 +264,7 @@ public class EventServiceImpl implements EventService {
 
         if (eventDate.isBefore(LocalDateTime.now().plusHours(hours))) {
             String message = "The event date must be no earlier than %d hours from the %s time"
-                .formatted(hours, state == EventState.PUBLISHED ? "publishing" : "current");
+                    .formatted(hours, state == EventState.PUBLISHED ? "publishing" : "current");
             throw new ConditionNotMetException(message);
         }
     }
