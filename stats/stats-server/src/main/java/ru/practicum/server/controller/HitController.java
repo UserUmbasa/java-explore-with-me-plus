@@ -41,6 +41,26 @@ public class HitController {
 //        return hitService.getStats(start, end, uris, unique);
 //    }
 
+//    @GetMapping("/stats")
+//    public List<ViewStatsDTO> getStats(
+//            @RequestParam String start,
+//            @RequestParam String end,
+//            @RequestParam(required = false) List<String> uris,
+//            @RequestParam(defaultValue = "false") Boolean unique) {
+//
+//        try {
+//            LocalDateTime startDate = LocalDateTime.parse(
+//                    URLDecoder.decode(start, StandardCharsets.UTF_8), FORMATTER);
+//            LocalDateTime endDate = LocalDateTime.parse(
+//                    URLDecoder.decode(end, StandardCharsets.UTF_8), FORMATTER);
+//
+//            log.info("Received stats request: start={}, end={}, uris={}, unique={}", startDate, endDate, uris, unique);
+//            return hitService.getStats(startDate, endDate, uris, unique);
+//        } catch (Exception e) {
+//            throw new IllegalArgumentException("Неверный формат даты. Используйте 'yyyy-MM-dd HH:mm:ss'");
+//        }
+//    }
+
     @GetMapping("/stats")
     public List<ViewStatsDTO> getStats(
             @RequestParam String start,
@@ -49,12 +69,15 @@ public class HitController {
             @RequestParam(defaultValue = "false") Boolean unique) {
 
         try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime startDate = LocalDateTime.parse(
-                    URLDecoder.decode(start, StandardCharsets.UTF_8), FORMATTER);
+                    URLDecoder.decode(start, StandardCharsets.UTF_8), formatter);
             LocalDateTime endDate = LocalDateTime.parse(
-                    URLDecoder.decode(end, StandardCharsets.UTF_8), FORMATTER);
+                    URLDecoder.decode(end, StandardCharsets.UTF_8), formatter);
 
-            log.info("Received stats request: start={}, end={}, uris={}, unique={}", startDate, endDate, uris, unique);
+            log.info("Received stats request: start={}, end={}, uris={}, unique={}",
+                    startDate, endDate, uris, unique);
+
             return hitService.getStats(startDate, endDate, uris, unique);
         } catch (Exception e) {
             throw new IllegalArgumentException("Неверный формат даты. Используйте 'yyyy-MM-dd HH:mm:ss'");
