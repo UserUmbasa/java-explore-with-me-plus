@@ -10,6 +10,7 @@
 //import ru.practicum.server.service.HitService;
 //
 //import java.net.URLDecoder;
+//import java.net.URLEncoder;
 //import java.nio.charset.StandardCharsets;
 //import java.time.LocalDateTime;
 //import java.time.format.DateTimeFormatter;
@@ -21,7 +22,6 @@
 //public class HitController {
 //
 //    private final HitService hitService;
-//    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 //
 //    @PostMapping("/hit")
 //    @ResponseStatus(HttpStatus.CREATED)
@@ -30,37 +30,6 @@
 //        hitService.createHit(endpointHitDTO);
 //    }
 //
-////    @GetMapping("/stats")
-////    public List<ViewStatsDTO> getStats(
-////            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-////            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-////            @RequestParam(required = false) List<String> uris,
-////            @RequestParam(defaultValue = "false") Boolean unique) {
-////
-////        log.info("Received stats request: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
-////        return hitService.getStats(start, end, uris, unique);
-////    }
-//
-////    @GetMapping("/stats")
-////    public List<ViewStatsDTO> getStats(
-////            @RequestParam String start,
-////            @RequestParam String end,
-////            @RequestParam(required = false) List<String> uris,
-////            @RequestParam(defaultValue = "false") Boolean unique) {
-////
-////        try {
-////            LocalDateTime startDate = LocalDateTime.parse(
-////                    URLDecoder.decode(start, StandardCharsets.UTF_8), FORMATTER);
-////            LocalDateTime endDate = LocalDateTime.parse(
-////                    URLDecoder.decode(end, StandardCharsets.UTF_8), FORMATTER);
-////
-////            log.info("Received stats request: start={}, end={}, uris={}, unique={}", startDate, endDate, uris, unique);
-////            return hitService.getStats(startDate, endDate, uris, unique);
-////        } catch (Exception e) {
-////            throw new IllegalArgumentException("Неверный формат даты. Используйте 'yyyy-MM-dd HH:mm:ss'");
-////        }
-////    }
-//
 //    @GetMapping("/stats")
 //    public List<ViewStatsDTO> getStats(
 //            @RequestParam String start,
@@ -68,19 +37,49 @@
 //            @RequestParam(required = false) List<String> uris,
 //            @RequestParam(defaultValue = "false") Boolean unique) {
 //
+//        log.info("RAW PARAMS - start: '{}', end: '{}', uris: {}, unique: {}", start, end, uris, unique);
+//
 //        try {
+//            String processedStart = processEncodedParameter(start);
+//            String processedEnd = processEncodedParameter(end);
+//
+//            log.info("PROCESSED - start: '{}', end: '{}'", processedStart, processedEnd);
+//
 //            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//            LocalDateTime startDate = LocalDateTime.parse(
-//                    URLDecoder.decode(start, StandardCharsets.UTF_8), formatter);
-//            LocalDateTime endDate = LocalDateTime.parse(
-//                    URLDecoder.decode(end, StandardCharsets.UTF_8), formatter);
+//            String decodedStart = URLDecoder.decode(processedStart, StandardCharsets.UTF_8);
+//            String decodedEnd = URLDecoder.decode(processedEnd, StandardCharsets.UTF_8);
 //
-//            log.info("Received stats request: start={}, end={}, uris={}, unique={}",
-//                    startDate, endDate, uris, unique);
+//            log.info("DECODED - start: '{}', end: '{}'", decodedStart, decodedEnd);
 //
-//            return hitService.getStats(startDate, endDate, uris, unique);
+//            LocalDateTime startDate = LocalDateTime.parse(decodedStart, formatter);
+//            LocalDateTime endDate = LocalDateTime.parse(decodedEnd, formatter);
+//
+//            log.info("PARSED - start: {}, end: {}", startDate, endDate);
+//
+//            List<ViewStatsDTO> result = hitService.getStats(startDate, endDate, uris, unique);
+//            log.info("FINAL RESULT: {}", result);
+//
+//            return result;
 //        } catch (Exception e) {
+//            log.error("ERROR parsing dates: start='{}', end='{}', error: {}", start, end, e.getMessage());
 //            throw new IllegalArgumentException("Неверный формат даты. Используйте 'yyyy-MM-dd HH:mm:ss'");
+//        }
+//    }
+//
+//    private String processEncodedParameter(String param) {
+//        log.info("Processing parameter: '{}'", param);
+//
+//        // Полностью перекодируем параметр
+//        try {
+//            // Сначала декодируем (на случай если уже частично закодировано)
+//            String decoded = URLDecoder.decode(param, StandardCharsets.UTF_8);
+//            // Затем кодируем правильно
+//            String encoded = URLEncoder.encode(decoded, StandardCharsets.UTF_8);
+//            log.info("Fully re-encoded: '{}' -> '{}'", param, encoded);
+//            return encoded;
+//        } catch (Exception e) {
+//            log.warn("Failed to re-encode parameter '{}', using original", param);
+//            return param;
 //        }
 //    }
 //}
@@ -124,38 +123,27 @@ public class HitController {
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
 
+        log.info("RAW PARAMS - start: '{}', end: '{}', uris: {}, unique: {}", start, end, uris, unique);
+
         try {
-            // Обрабатываем некорректное кодирование (пробелы вместо %20)
-            String processedStart = processEncodedParameter(start);
-            String processedEnd = processEncodedParameter(end);
+            // Декодируем параметры дат
+            String decodedStart = URLDecoder.decode(start, StandardCharsets.UTF_8);
+            String decodedEnd = URLDecoder.decode(end, StandardCharsets.UTF_8);
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String decodedStart = URLDecoder.decode(processedStart, StandardCharsets.UTF_8);
-            String decodedEnd = URLDecoder.decode(processedEnd, StandardCharsets.UTF_8);
+            log.info("DECODED - start: '{}', end: '{}'", decodedStart, decodedEnd);
 
-            LocalDateTime startDate = LocalDateTime.parse(decodedStart, formatter);
-            LocalDateTime endDate = LocalDateTime.parse(decodedEnd, formatter);
+            LocalDateTime startDate = LocalDateTime.parse(decodedStart, FORMATTER);
+            LocalDateTime endDate = LocalDateTime.parse(decodedEnd, FORMATTER);
 
-            log.info("Processed stats request: start={}, end={}, uris={}, unique={}",
-                    startDate, endDate, uris, unique);
+            log.info("PARSED - start: {}, end: {}", startDate, endDate);
 
-            return hitService.getStats(startDate, endDate, uris, unique);
+            List<ViewStatsDTO> result = hitService.getStats(startDate, endDate, uris, unique);
+            log.info("FINAL RESULT: {}", result);
+
+            return result;
         } catch (Exception e) {
-            log.error("Error parsing dates: start='{}', end='{}', error={}", start, end, e.getMessage());
+            log.error("ERROR parsing dates: start='{}', end='{}', error: {}", start, end, e.getMessage());
             throw new IllegalArgumentException("Неверный формат даты. Используйте 'yyyy-MM-dd HH:mm:ss'");
         }
-    }
-
-    private String processEncodedParameter(String param) {
-        // Если параметр уже правильно закодирован (%20) - возвращаем как есть
-        if (param.contains("%20")) {
-            return param;
-        }
-        // Если есть пробелы - заменяем на %20 (исправляем некорректное кодирование)
-        if (param.contains(" ")) {
-            return param.replace(" ", "%20");
-        }
-        // Во всех остальных случаях возвращаем как есть
-        return param;
     }
 }

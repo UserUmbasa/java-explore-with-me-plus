@@ -23,13 +23,6 @@ public class ErrorHandler {
         return new ErrorResponse("Некоректный формат даты. Используйте 'yyyy-MM-dd HH:mm:ss'");
     }
 
-//    @ExceptionHandler(IllegalArgumentException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException e) {
-//        log.warn("Некоректный запрос: {}", e.getMessage());
-//        return new ErrorResponse(e.getMessage());
-//    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(MethodArgumentNotValidException e) {
