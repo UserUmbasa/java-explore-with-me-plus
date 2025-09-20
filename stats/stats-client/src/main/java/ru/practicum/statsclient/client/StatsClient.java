@@ -39,20 +39,17 @@ public class StatsClient {
                 .queryParam("unique", unique);
 
         if (uris != null && !uris.isEmpty()) {
-            // Правильное добавление параметра uris как строки с запятыми
-            String urisString = String.join(",", uris);
-            uriBuilder.queryParam("uris", urisString);
+            uriBuilder.queryParam("uris", String.join(",", uris));
         }
 
         String url = uriBuilder.toUriString();
-
 
         ViewStatsDTO[] response = restClient.get()
                 .uri(url)
                 .retrieve()
                 .body(ViewStatsDTO[].class);
 
-        return response != null ? Arrays.asList(response) : List.of();
+        return Arrays.asList(response);
     }
 
     private String encodeDateTime(LocalDateTime dateTime) {

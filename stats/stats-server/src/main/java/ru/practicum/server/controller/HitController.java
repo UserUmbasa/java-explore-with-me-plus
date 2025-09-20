@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,34 +35,27 @@ public class HitController {
     public List<ViewStatsDTO> getStats(
             @RequestParam String start,
             @RequestParam String end,
-            @RequestParam(required = false) String uris, // Изменено на String
+            @RequestParam(required = false) String uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
 
         log.info("RAW PARAMS - start: '{}', end: '{}', uris: {}, unique: {}", start, end, uris, unique);
 
         try {
-            // Декодируем параметры дат
             String decodedStart = URLDecoder.decode(start, StandardCharsets.UTF_8);
             String decodedEnd = URLDecoder.decode(end, StandardCharsets.UTF_8);
 
             log.info("DECODED - start: '{}', end: '{}'", decodedStart, decodedEnd);
 
-            LocalDateTime startDate = LocalDateTime.parse(decodedStart, FORMATTER);
-            LocalDateTime endDate = LocalDateTime.parse(decodedEnd, FORMATTER);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime startDate = LocalDateTime.parse(decodedStart, formatter);
+            LocalDateTime endDate = LocalDateTime.parse(decodedEnd, formatter);
 
-            log.info("PARSED - start: {}, end: {}", startDate, endDate);
-
-            // Преобразуем строку uris в список
-            List<String> uriList = null;
-            if (uris != null && !uris.trim().isEmpty()) {
-                uriList = Arrays.stream(uris.split(","))
-                        .map(String::trim)
-                        .filter(uri -> !uri.isEmpty())
-                        .collect(Collectors.toList());
-                log.info("Processed URIs list: {}", uriList);
+            List<String> urisList = null;
+            if (uris != null && !uris.isEmpty()) {
+                urisList = Arrays.asList(uris.split(","));
             }
 
-            List<ViewStatsDTO> result = hitService.getStats(startDate, endDate, uriList, unique);
+            List<ViewStatsDTO> result = hitService.getStats(startDate, endDate, urisList, unique);
             log.info("FINAL RESULT: {}", result);
 
             return result;
