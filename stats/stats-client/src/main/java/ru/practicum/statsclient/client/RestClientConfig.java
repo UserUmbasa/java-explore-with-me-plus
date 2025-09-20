@@ -1,5 +1,6 @@
 package ru.practicum.statsclient.client;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
@@ -7,10 +8,13 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class RestClientConfig {
 
+    @Value("${stats.server.url:http://stats-server:9090}")
+    private String statsServerUrl;
+
     @Bean
     public RestClient restClient() {
         return RestClient.builder()
-                .baseUrl("http://localhost:9090/")
+                .baseUrl(statsServerUrl)
                 .build();
     }
 }
