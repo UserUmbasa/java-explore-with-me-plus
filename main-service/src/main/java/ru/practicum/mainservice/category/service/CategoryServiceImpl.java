@@ -32,7 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDtoOut get(Long id) {
         Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Category", id));
+                .orElseThrow(() -> new NotFoundException("Category ", id));
 
         return CategoryMapper.toDto(category);
     }
@@ -40,9 +40,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDtoOut add(CategoryDto categoryDto) {
-        if (categoryRepository.existsByName(categoryDto.getName())){
-            throw new IllegalStateException("Category" + categoryDto.getName() + " already exists");
+
+        if (categoryRepository.existsByName(categoryDto.getName())) {
+            throw new IllegalStateException("Category " + categoryDto.getName() + " already exists");
         }
+
         Category category = CategoryMapper.fromDto(categoryDto);
         Category saved = categoryRepository.save(category);
         return CategoryMapper.toDto(saved);
@@ -54,11 +56,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category result = categoryRepository.findByName(categoryDto.getName());
         if (result != null && !result.getId().equals(id)) {
-            throw new IllegalStateException("Category" + categoryDto.getName() + " already exists");
+            throw new IllegalStateException("Category " + categoryDto.getName() + " already exists");
         }
 
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category", id));
+                .orElseThrow(() -> new NotFoundException("Category ", id));
 
         category.setName(categoryDto.getName());
         Category saved = categoryRepository.save(category);
@@ -69,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void delete(Long id) {
         if (!categoryRepository.existsById(id)) {
-            throw new NotFoundException("Category", id);
+            throw new NotFoundException("Category ", id);
         }
 
         if (eventRepository.existsByCategoryId(id)) {
