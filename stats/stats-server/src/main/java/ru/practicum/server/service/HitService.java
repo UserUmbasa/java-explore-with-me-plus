@@ -38,11 +38,22 @@ public class HitService {
     public List<ViewStatsDTO> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         validateDateRange(start, end);
 
+        log.info("Service processing - start: {}, end: {}, uris: {}, unique: {}", start, end, uris, unique);
+
+        long totalHits = hitRepository.count();
+        log.info("Total hits in DB: {}", totalHits);
+
+        List<ViewStatsDTO> result;
         if (Boolean.TRUE.equals(unique)) {
-            return hitRepository.getUniqueStats(start, end, uris);
+            result = hitRepository.getUniqueStats(start, end, uris);
+            log.info("Unique stats query executed, found: {} results", result.size());
         } else {
-            return hitRepository.getStats(start, end, uris);
+            result = hitRepository.getStats(start, end, uris);
+            log.info("Regular stats query executed, found: {} results", result.size());
         }
+
+        log.info("Service result: {}", result);
+        return result;
     }
 
     private void validateDateRange(LocalDateTime start, LocalDateTime end) {

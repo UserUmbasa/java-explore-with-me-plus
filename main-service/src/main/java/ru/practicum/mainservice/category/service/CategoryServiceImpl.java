@@ -1,70 +1,83 @@
 package ru.practicum.mainservice.category.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.mainservice.exception.DuplicateException;
-import ru.practicum.mainservice.exception.NotFoundException;
 import ru.practicum.mainservice.category.dto.CategoryDto;
+import ru.practicum.mainservice.category.dto.CategoryDtoOut;
+import ru.practicum.mainservice.category.mapper.CategoryMapper;
 import ru.practicum.mainservice.category.model.Category;
 import ru.practicum.mainservice.category.repository.CategoryRepository;
-import ru.practicum.mainservice.mapper.DtoModelMapper;
+import ru.practicum.mainservice.event.repository.EventRepository;
+import ru.practicum.mainservice.exception.NotFoundException;
 
-import java.util.List;
+import java.util.Collection;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
+
     private final CategoryRepository categoryRepository;
-    private final DtoModelMapper dtoModelMapper;
+    public final EventRepository eventRepository;
 
     @Override
-    @Transactional
-    public CategoryDto saveCategory(CategoryDto category) {
-        if (categoryRepository.existsByName(category.getName())) {
-            throw new DuplicateException("такая категория уже есть");
-        }
-        Category result = categoryRepository.save(dtoModelMapper.mapToCategory(category));
-        return dtoModelMapper.mapToCategoryDto(result);
-    }
-
-    @Override
-    @Transactional
-    public CategoryDto update(Long catId, CategoryDto category) {
-        if (categoryRepository.existsByName(category.getName())) {
-            throw new DuplicateException("такая категория уже есть");
-        }
-        Category result = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("такой категории нет"));
-        result.setName(category.getName());
-        return dtoModelMapper.mapToCategoryDto(result);
-    }
-
-    @Override
-    public CategoryDto findCategory(Long catId) {
-        Category result = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("такой категории нет"));
-        return dtoModelMapper.mapToCategoryDto(result);
-    }
-
-    @Override
-    public List<CategoryDto> findAllCategory(Long from, Long size) {
-        Pageable pageable = PageRequest.of(
-                from.intValue(),
-                size.intValue()
-        );
-        List<Category> result = categoryRepository.findAll(pageable).getContent();
-        return result.stream()
-                .map(dtoModelMapper::mapToCategoryDto)
+    public Collection<CategoryDtoOut> getAll(Integer offset, Integer limit) {
+        Collection<Category> categories = categoryRepository.findWithOffsetAndLimit(offset, limit);
+        return categories.stream()
+                .map(CategoryMapper::toDto)
                 .toList();
     }
 
+    @Override
+    public CategoryDtoOut get(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Category ", id));
+
+        return CategoryMapper.toDto(category);
+    }
+
+    @Override
     @Transactional
-    public void delete(Long catId) {
-        if (!categoryRepository.existsById(catId)) {
-            throw new NotFoundException("такого пользователя нет");
+    public CategoryDtoOut add(CategoryDto categoryDto) {
+
+        if (categoryRepository.existsByName(categoryDto.getName())) {
+            throw new IllegalStateException("Category " + categoryDto.getName() + " already exists");
         }
-        categoryRepository.deleteById(catId);
+
+        Category category = CategoryMapper.fromDto(categoryDto);
+        Category saved = categoryRepository.save(category);
+        return CategoryMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public CategoryDtoOut update(Long id, CategoryDto categoryDto) {
+
+        Category result = categoryRepository.findByName(categoryDto.getName());
+        if (result != null && !result.getId().equals(id)) {
+            throw new IllegalStateException("Category " + categoryDto.getName() + " already exists");
+        }
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Category ", id));
+
+        category.setName(categoryDto.getName());
+        Category saved = categoryRepository.save(category);
+        return CategoryMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new NotFoundException("Category ", id);
+        }
+
+        if (eventRepository.existsByCategoryId(id)) {
+            throw new IllegalStateException("Cannot delete category. There are events associated with it.");
+        }
+
+        categoryRepository.deleteById(id);
     }
 }

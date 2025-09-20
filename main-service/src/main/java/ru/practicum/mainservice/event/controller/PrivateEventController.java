@@ -1,0 +1,61 @@
+package ru.practicum.mainservice.event.controller;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainservice.event.dto.EventCreateDto;
+import ru.practicum.mainservice.event.dto.EventDtoOut;
+import ru.practicum.mainservice.event.dto.EventShortDtoOut;
+import ru.practicum.mainservice.event.dto.EventUpdateDto;
+import ru.practicum.mainservice.event.service.EventService;
+
+import java.util.Collection;
+
+@Slf4j
+@Validated
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/users")
+public class PrivateEventController {
+
+    private final EventService eventService;
+
+    @GetMapping("/{userId}/events")
+    public Collection<EventShortDtoOut> getEventsCreatedByUser(
+            @PathVariable @Min(1) Long userId,
+            @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer offset,
+            @RequestParam(name = "size", defaultValue = "10") @Min(1) Integer limit) {
+
+        log.info("request from user: get all events created by user id:{}", userId);
+
+        return eventService.findByInitiator(userId, offset, limit);
+    }
+
+    @PostMapping("/{userId}/events")
+    @ResponseStatus(HttpStatus.CREATED)
+    public EventDtoOut createEvent(@PathVariable @Min(1) Long userId,
+                                   @RequestBody @Valid EventCreateDto eventDto) {
+        log.info("request from user: create new event: {}", eventDto);
+        return eventService.add(userId, eventDto);
+    }
+
+    @PatchMapping("/{userId}/events/{eventId}")
+    public EventDtoOut updateEvent(
+            @PathVariable @Min(1) Long userId,
+            @PathVariable @Min(1) Long eventId,
+            @RequestBody @Valid EventUpdateDto eventDto) {
+        log.info("request from user: update event: {}", eventDto);
+        return eventService.update(userId, eventId, eventDto);
+    }
+
+    @GetMapping("/{userId}/events/{eventId}")
+    public EventDtoOut getEventById(@PathVariable @Min(1) Long userId,
+                                    @PathVariable @Min(1) Long eventId) {
+        log.info("request from user: get event: {}", eventId);
+        return eventService.find(userId, eventId);
+    }
+}
