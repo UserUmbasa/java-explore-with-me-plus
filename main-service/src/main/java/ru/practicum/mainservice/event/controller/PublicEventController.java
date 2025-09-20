@@ -19,6 +19,7 @@ import ru.practicum.mainservice.exception.InvalidRequestException;
 import ru.practicum.statsclient.client.StatsClient;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class PublicEventController {
 
     private final EventService eventService;
     private final StatsClient statsClient;
-
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     // Получение событий с возможностью фильтрации
     @GetMapping
     public Collection<EventShortDtoOut> getEvents(
@@ -79,9 +80,33 @@ public class PublicEventController {
     @GetMapping("/{eventId}")
     public EventDtoOut get(@PathVariable @Min(1) Long eventId,
                            HttpServletRequest request) {
-
         log.debug("request for published event id:{}", eventId);
+
+        //статистика
+        EndpointHitDTO endpointHitDto = EndpointHitDTO.builder()
+                .app("events") // название приложения
+                .uri("/events/" + eventId) // URI запроса
+                .ip(getClientIp(request)) // получаем IP клиента
+                .timestamp(LocalDateTime.now().format(FORMATTER))
+                .build();
+        statsClient.saveHit(endpointHitDto);
         EventDtoOut dtoOut = eventService.findPublished(eventId);
         return dtoOut;
     }
+
+    //IP-адрес
+    private String getClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
+
 }

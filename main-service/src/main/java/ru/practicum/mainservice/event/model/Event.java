@@ -80,5 +80,5 @@ public class Event {
 
     @Transient
     @Builder.Default
-    private Integer views = 0;
+    private Long views = 0L;
 }

@@ -12,8 +12,7 @@ import ru.practicum.statsclient.client.StatsClient;
 @Import(RestClientConfig.class)
 public class StatsClientImpl extends StatsClient {
     @Autowired
-    public StatsClientImpl(@Value("${statsserver.url}") String serverUrl,
-                           RestClient restClient) {
-        super(serverUrl, restClient);
+    public StatsClientImpl(RestClient restClient) {
+        super(restClient);
     }
 }

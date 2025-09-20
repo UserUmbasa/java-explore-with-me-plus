@@ -42,5 +42,5 @@ public class EventDtoOut {
     private Integer confirmedRequests;
 
     @Builder.Default
-    private Integer views = 0;
+    private Long views = 0L;
 }

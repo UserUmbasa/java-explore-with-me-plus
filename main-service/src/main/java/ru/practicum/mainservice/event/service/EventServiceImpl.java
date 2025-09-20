@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.ViewStatsDTO;
 import ru.practicum.mainservice.category.model.Category;
 import ru.practicum.mainservice.category.repository.CategoryRepository;
 import ru.practicum.mainservice.event.dto.*;
@@ -22,11 +23,14 @@ import ru.practicum.mainservice.participation.model.RequestsCount;
 import ru.practicum.mainservice.participation.repository.ParticipationRequestRepository;
 import ru.practicum.mainservice.user.model.User;
 import ru.practicum.mainservice.user.repository.UserRepository;
+import ru.practicum.statsclient.client.StatsClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static ru.practicum.mainservice.constants.Constants.STATS_EVENTS_URL;
 
 @Slf4j
 @Service
@@ -42,7 +46,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final ParticipationRequestRepository requestRepository;
 
-    //private final StatsClient statsClient;
+    private final StatsClient statsClient;
 
 
     @Override
@@ -149,15 +153,34 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDtoOut findPublished(Long eventId) {
-
         Event event = eventRepository.findPublishedById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event", eventId));
-
-        enrichWithConfirmedRequestsCount(List.of(event));
-//        enrichWithViewsCount(List.of(event));
-
+        //статистика
+        enrichWithStats(event);
         return EventMapper.toDto(event);
     }
+
+    private void enrichWithStats(Event event) {
+        //запросы
+        enrichWithConfirmedRequestsCount(List.of(event));
+        //просмотры
+        event.setViews(getViewsCount(event.getId()));
+    }
+
+    private Long getViewsCount(Long eventId) {
+        List<ViewStatsDTO> result = statsClient.getStats(
+                LocalDateTime.now().minusYears(10),
+                LocalDateTime.now().plusYears(10),
+                List.of(STATS_EVENTS_URL + eventId),
+                true);
+        return result.stream().count();
+    }
+
+
+
+
+
+
 
     @Override
     public EventDtoOut find(Long userId, Long eventId) {
@@ -172,7 +195,7 @@ public class EventServiceImpl implements EventService {
         }
 
         enrichWithConfirmedRequestsCount(List.of(event));
-    //    enrichWithViewsCount(List.of(event));
+        enrichWithViewsCount(List.of(event));
 
         return EventMapper.toDto(event);
     }
@@ -197,7 +220,7 @@ public class EventServiceImpl implements EventService {
     private Collection<Event> findBy(Specification<Event> spec, Pageable pageable) {
         Collection<Event> events = eventRepository.findAll(spec, pageable).getContent();
         enrichWithConfirmedRequestsCount(events);
-//        enrichWithViewsCount(events);
+        enrichWithViewsCount(events);
         return events;
     }
 
@@ -241,7 +264,7 @@ public class EventServiceImpl implements EventService {
 
         Collection<Event> events = eventRepository.findByInitiatorId(userId, offset, limit);
         enrichWithConfirmedRequestsCount(events);
-//        enrichWithViewsCount(events);
+        enrichWithViewsCount(events);
 
         return events.stream()
                 .map(EventMapper::toShortDto)
@@ -268,52 +291,10 @@ public class EventServiceImpl implements EventService {
         );
     }
 
-//    private void enrichWithViewsCount(Collection<Event> events) {
-//        if (events.isEmpty())
-//            return;
-//
-//        Map<Long, Integer> hitsMap = getStatistics(events.stream()
-//                .map(Event::getId)
-//                .toList());
-//
-//        if (hitsMap.isEmpty())
-//            return;
-//
-//        events.forEach(dto ->
-//                dto.setViews(hitsMap.getOrDefault(dto.getId(), 0))
-//        );
-//    }
+    private void enrichWithViewsCount(Collection<Event> events){
+        return ;
+    }
 
-//    private Map<Long, Integer> getStatistics(Collection<Long> ids) {
-//        Collection<StatsDtoOut> stats = List.of();
-//        if (ids.isEmpty())
-//            return Map.of();
-//
-//        try {
-//            stats = statsClient.getStats(
-//                    LocalDateTime.now().minusYears(10),
-//                    LocalDateTime.now().plusYears(10),
-//                    ids.stream().map(id -> STATS_EVENTS_URL + id).toList(),
-//                    true);
-//        } catch (StatsClientException ex) {
-//            log.error(ex.getMessage());
-//        }
-//
-//        if (stats.isEmpty())
-//            return Map.of();
-//
-//        Map<String, Integer> hits = stats.stream()
-//                .collect(Collectors.toMap(
-//                        StatsDtoOut::getUri,
-//                        StatsDtoOut::getHits
-//                ));
-//
-//        return ids.stream()
-//                .collect(Collectors.toMap(
-//                        num -> num,
-//                        num -> hits.getOrDefault(STATS_EVENTS_URL + num, 0)
-//                ));
-//    }
 
     private void validateEventDate(LocalDateTime eventDate, EventState state) {
         if (eventDate == null) {

@@ -22,7 +22,7 @@ public class HitController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createHit(@Valid @RequestBody EndpointHitDTO endpointHitDTO) {
+    public void createHit(@RequestBody EndpointHitDTO endpointHitDTO) {
         log.info("Received hit: {}", endpointHitDTO);
         hitService.createHit(endpointHitDTO);
     }
