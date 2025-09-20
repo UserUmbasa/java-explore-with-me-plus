@@ -5,9 +5,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.dto.EndpointHitDTO;
 import ru.practicum.dto.ViewStatsDTO;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -15,13 +12,8 @@ import java.util.List;
 
 public class StatsClient {
     private final RestClient restClient;
-    //private final String serverUrl;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-//    public StatsClient(String serverUrl, RestClient restClient) {
-//        this.restClient = restClient;
-//        this.serverUrl = serverUrl;
-//    }
     public StatsClient(RestClient restClient) {
         this.restClient = restClient;
     }
@@ -53,9 +45,5 @@ public class StatsClient {
                 .body(ViewStatsDTO[].class);
 
         return Arrays.asList(response);
-    }
-
-    private String encodeDateTime(LocalDateTime dateTime) {
-        return URLEncoder.encode(dateTime.format(FORMATTER), StandardCharsets.UTF_8);
     }
 }

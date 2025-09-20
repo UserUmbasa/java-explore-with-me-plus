@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static ru.practicum.mainservice.constants.Constants.DATE_TIME_FORMAT;
-import static ru.practicum.mainservice.constants.Constants.STATS_EVENTS_URL;
+
 
 @Slf4j
 @Validated
