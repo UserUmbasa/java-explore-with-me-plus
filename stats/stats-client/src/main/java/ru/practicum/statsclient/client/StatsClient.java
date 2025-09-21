@@ -29,11 +29,7 @@ public abstract class StatsClient {
     }
 
     public List<ViewStatsDTO> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-
-        if (start == null || end == null) {
-            throw new IllegalArgumentException("Время старта и завершения не могут быть пустыми.");
-        }
-
+        validateDates(start, end);
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl("/stats")
                 .queryParam("start", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(start))
                 .queryParam("end", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(end))
@@ -51,5 +47,14 @@ public abstract class StatsClient {
                 .body(ViewStatsDTO[].class);
 
         return Arrays.asList(response);
+    }
+
+    private void validateDates(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Dates must not be null");
+        }
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("Start date must be before end date");
+        }
     }
 }

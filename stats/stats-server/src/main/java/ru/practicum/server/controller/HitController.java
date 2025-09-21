@@ -31,9 +31,6 @@ public class HitController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
-        if (start == null || end == null) {
-            throw new IllegalArgumentException("Время старта и завершения не могут быть пустыми.");
-        }
         log.info("Received stats request: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         return hitService.getStats(start, end, uris, unique);
     }
