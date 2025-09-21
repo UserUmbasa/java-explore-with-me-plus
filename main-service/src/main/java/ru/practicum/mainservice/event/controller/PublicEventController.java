@@ -35,6 +35,7 @@ public class PublicEventController {
     private final EventService eventService;
     private final StatsClient statsClient;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     // Получение событий с возможностью фильтрации
     @GetMapping
     public Collection<EventShortDtoOut> getEvents(

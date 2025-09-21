@@ -291,8 +291,8 @@ public class EventServiceImpl implements EventService {
         );
     }
 
-    private void enrichWithViewsCount(Collection<Event> events){
-        return ;
+    private void enrichWithViewsCount(Collection<Event> events) {
+        return;
     }
 
 

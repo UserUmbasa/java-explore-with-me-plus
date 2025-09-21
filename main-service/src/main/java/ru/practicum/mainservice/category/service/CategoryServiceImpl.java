@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDtoOut add(CategoryDto categoryDto) {
-        if (categoryRepository.existsByName(categoryDto.getName())){
+        if (categoryRepository.existsByName(categoryDto.getName())) {
             throw new IllegalStateException("Category" + categoryDto.getName() + " already exists");
         }
         Category category = CategoryMapper.fromDto(categoryDto);
