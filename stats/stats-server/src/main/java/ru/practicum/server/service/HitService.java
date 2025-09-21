@@ -46,6 +46,9 @@ public class HitService {
     }
 
     private void validateDateRange(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Dates must not be null");
+        }
         if (start.isAfter(end)) {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
