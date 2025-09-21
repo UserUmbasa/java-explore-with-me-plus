@@ -70,10 +70,33 @@ public class PublicEventController {
         }
 
         Collection<EventShortDtoOut> events = eventService.findShortEventsBy(filter);
+        // Добавляем запись статистики для списка событий
+        String clientIp = getClientIp(request);
 
+        // Статистика для каждого события в списке
         Collection<Long> ids = events.stream()
                 .map(EventShortDtoOut::getId)
                 .toList();
+
+        for (Long id : ids) {
+            EndpointHitDTO endpointHitDto = EndpointHitDTO.builder()
+                    .app("events")
+                    .uri("/events/" + id)
+                    .ip(clientIp)
+                    .timestamp(LocalDateTime.now().format(FORMATTER))
+                    .build();
+            statsClient.saveHit(endpointHitDto);
+        }
+
+        // Статистика для общего запроса списка
+        EndpointHitDTO listHitDto = EndpointHitDTO.builder()
+                .app("events")
+                .uri("/events")
+                .ip(clientIp)
+                .timestamp(LocalDateTime.now().format(FORMATTER))
+                .build();
+        statsClient.saveHit(listHitDto);
+
         return events;
     }
 
@@ -81,7 +104,7 @@ public class PublicEventController {
     public EventDtoOut get(@PathVariable @Min(1) Long eventId,
                            HttpServletRequest request) {
         log.debug("request for published event id:{}", eventId);
-
+        EventDtoOut dtoOut = eventService.findPublished(eventId);
         //статистика
         EndpointHitDTO endpointHitDto = EndpointHitDTO.builder()
                 .app("events") // название приложения
@@ -90,7 +113,6 @@ public class PublicEventController {
                 .timestamp(LocalDateTime.now().format(FORMATTER))
                 .build();
         statsClient.saveHit(endpointHitDto);
-        EventDtoOut dtoOut = eventService.findPublished(eventId);
         return dtoOut;
     }
 
