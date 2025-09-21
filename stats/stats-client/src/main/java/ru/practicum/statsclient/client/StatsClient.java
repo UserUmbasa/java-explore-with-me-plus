@@ -10,12 +10,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
-public class StatsClient {
+public abstract class StatsClient {
     private final RestClient restClient;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public StatsClient(RestClient restClient) {
-        this.restClient = restClient;
+    public StatsClient(String serverUrl) {
+        restClient = RestClient.builder()
+                .baseUrl(serverUrl)
+                .build();
     }
 
     public void saveHit(EndpointHitDTO endpointHitDto) {
