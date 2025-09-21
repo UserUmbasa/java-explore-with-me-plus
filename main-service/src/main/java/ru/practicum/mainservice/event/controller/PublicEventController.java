@@ -64,9 +64,16 @@ public class PublicEventController {
                 .state(EventState.PUBLISHED)
                 .build();
 
-        if (filter.getRangeStart() != null && filter.getRangeEnd() != null
-                && filter.getRangeStart().isAfter(filter.getRangeEnd())) {
-            throw new InvalidRequestException("The start date of the range must be earlier than the end date.");
+        // Добавляем проверку на наличие дат
+        if ((filter.getRangeStart() == null && filter.getRangeEnd() != null) ||
+                (filter.getRangeStart() != null && filter.getRangeEnd() == null)) {
+            throw new InvalidRequestException("Необходимо указать обе даты или не указывать их вовсе");
+        }
+
+        if (filter.getRangeStart() != null && filter.getRangeEnd() != null) {
+            if (filter.getRangeStart().isAfter(filter.getRangeEnd())) {
+                throw new InvalidRequestException("Дата начала должна быть раньше даты конца");
+            }
         }
 
         Collection<EventShortDtoOut> events = eventService.findShortEventsBy(filter);
