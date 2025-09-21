@@ -157,7 +157,7 @@ public class EventServiceImpl implements EventService {
 
     private void enrichWithStats(Event event) {
         //запросы
-        enrichWithConfirmedRequestsCount(List.of(event));
+        enrichWithConfirmedRequestsCount(event);
         //просмотры
         event.setViews(getViewsCount(event.getId()));
     }
@@ -268,30 +268,12 @@ public class EventServiceImpl implements EventService {
                 .toList();
     }
 
-    private void enrichWithConfirmedRequestsCount(Collection<Event> events) {
-        if (events.isEmpty())
-            return;
+    private void enrichWithConfirmedRequestsCount(Event event) {
+        if (event == null) return;
 
-        List<Long> ids = events.stream().map(Event::getId).toList();
-        List<RequestsCount> requestsCounts = requestRepository.countConfirmedRequestsForEvents(ids);
-        if (requestsCounts.isEmpty())
-            return;
-
-        Map<Long, Integer> counts = requestsCounts
-                .stream()
-                .collect(Collectors.toMap(
-                        RequestsCount::getId,
-                        RequestsCount::getCount
-                ));
-        events.forEach(e ->
-                e.setConfirmedRequests(counts.getOrDefault(e.getId(), 0))
-        );
+        int count = requestRepository.countConfirmedRequestsForEvent(event.getId());
+        event.setConfirmedRequests(count);
     }
-
-    private void enrichWithViewsCount(Collection<Event> events) {
-        return;
-    }
-
 
     private void validateEventDate(LocalDateTime eventDate, EventState state) {
         if (eventDate == null) {
