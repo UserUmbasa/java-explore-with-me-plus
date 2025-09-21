@@ -5,27 +5,23 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.dto.EndpointHitDTO;
 import ru.practicum.dto.ViewStatsDTO;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
-public class StatsClient {
+public abstract class StatsClient {
     private final RestClient restClient;
-    private final String serverUrl;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public StatsClient(String serverUrl, RestClient restClient) {
-        this.restClient = restClient;
-        this.serverUrl = serverUrl;
+    public StatsClient(String serverUrl) {
+        restClient = RestClient.builder()
+                .baseUrl(serverUrl)
+                .build();
     }
 
     public void saveHit(EndpointHitDTO endpointHitDto) {
         restClient.post()
-                .uri(serverUrl + "/hit")
+                .uri("/hit")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(endpointHitDto)
                 .retrieve()
@@ -33,9 +29,10 @@ public class StatsClient {
     }
 
     public List<ViewStatsDTO> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serverUrl + "/stats")
-                .queryParam("start", encodeDateTime(start))
-                .queryParam("end", encodeDateTime(end))
+        validateDates(start, end);
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl("/stats")
+                .queryParam("start", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(start))
+                .queryParam("end", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(end))
                 .queryParam("unique", unique);
 
         if (uris != null && !uris.isEmpty()) {
@@ -52,7 +49,12 @@ public class StatsClient {
         return Arrays.asList(response);
     }
 
-    private String encodeDateTime(LocalDateTime dateTime) {
-        return URLEncoder.encode(dateTime.format(FORMATTER), StandardCharsets.UTF_8);
+    private void validateDates(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Dates must not be null");
+        }
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("Start date must be before end date");
+        }
     }
 }

@@ -1,7 +1,5 @@
 package ru.practicum.server.controller;
 
-
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,7 +20,7 @@ public class HitController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createHit(@Valid @RequestBody EndpointHitDTO endpointHitDTO) {
+    public void createHit(@RequestBody EndpointHitDTO endpointHitDTO) {
         log.info("Received hit: {}", endpointHitDTO);
         hitService.createHit(endpointHitDTO);
     }
@@ -33,7 +31,6 @@ public class HitController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
-
         log.info("Received stats request: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         return hitService.getStats(start, end, uris, unique);
     }

@@ -1,17 +1,19 @@
 package ru.practicum.mainservice.category.service;
 
 import ru.practicum.mainservice.category.dto.CategoryDto;
+import ru.practicum.mainservice.category.dto.CategoryDtoOut;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface CategoryService {
-    CategoryDto saveCategory(CategoryDto category);
 
-    CategoryDto update(Long catId, CategoryDto category);
+    Collection<CategoryDtoOut> getAll(Integer offset, Integer limit);
 
-    CategoryDto findCategory(Long catId);
+    CategoryDtoOut get(Long id);
 
-    List<CategoryDto> findAllCategory(Long from, Long size);
+    CategoryDtoOut add(CategoryDto categoryDto);
 
-    void delete(Long catId);
+    CategoryDtoOut update(Long id, CategoryDto categoryDto);
+
+    void delete(Long id);
 }

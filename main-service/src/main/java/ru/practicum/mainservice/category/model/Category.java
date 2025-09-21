@@ -1,16 +1,20 @@
 package ru.practicum.mainservice.category.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
-@Table(name = "categories", schema = "public")
 @Getter
 @Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "categories")
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "name", nullable = false)
     private String name;
 }
