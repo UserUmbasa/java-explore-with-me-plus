@@ -117,12 +117,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDtoOut update(Long eventId, EventUpdateAdminDto eventDto) {
-
-        // дата начала изменяемого события должна быть не ранее чем за час от даты публикации.
-        // (Ожидается код ошибки 409)
-
         Event event = getEvent(eventId);
-
         Optional.ofNullable(eventDto.getTitle()).ifPresent(event::setTitle);
         Optional.ofNullable(eventDto.getAnnotation()).ifPresent(event::setAnnotation);
         Optional.ofNullable(eventDto.getDescription()).ifPresent(event::setDescription);
@@ -176,12 +171,6 @@ public class EventServiceImpl implements EventService {
         return result.stream().count();
     }
 
-
-
-
-
-
-
     @Override
     public EventDtoOut find(Long userId, Long eventId) {
         if (!userRepository.existsById(userId)) {
@@ -194,8 +183,9 @@ public class EventServiceImpl implements EventService {
             throw new NoAccessException("Only initiator can view this event");
         }
 
-        enrichWithConfirmedRequestsCount(List.of(event));
-        enrichWithViewsCount(List.of(event));
+//        enrichWithConfirmedRequestsCount(List.of(event));
+//        enrichWithViewsCount(List.of(event));
+        enrichWithStats(event);
 
         return EventMapper.toDto(event);
     }
@@ -219,8 +209,12 @@ public class EventServiceImpl implements EventService {
 
     private Collection<Event> findBy(Specification<Event> spec, Pageable pageable) {
         Collection<Event> events = eventRepository.findAll(spec, pageable).getContent();
-        enrichWithConfirmedRequestsCount(events);
-        enrichWithViewsCount(events);
+//        enrichWithConfirmedRequestsCount(events);
+//        enrichWithViewsCount(events);
+
+        for (Event event : events) {
+            enrichWithStats(event);
+        }
         return events;
     }
 
@@ -263,8 +257,11 @@ public class EventServiceImpl implements EventService {
         }
 
         Collection<Event> events = eventRepository.findByInitiatorId(userId, offset, limit);
-        enrichWithConfirmedRequestsCount(events);
-        enrichWithViewsCount(events);
+//        enrichWithConfirmedRequestsCount(events);
+//        enrichWithViewsCount(events);
+        for (Event event : events) {
+            enrichWithStats(event);
+        }
 
         return events.stream()
                 .map(EventMapper::toShortDto)
