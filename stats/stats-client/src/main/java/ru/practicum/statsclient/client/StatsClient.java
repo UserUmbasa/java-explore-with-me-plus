@@ -29,6 +29,11 @@ public abstract class StatsClient {
     }
 
     public List<ViewStatsDTO> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Время старта и завершения не могут быть пустыми.");
+        }
+
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl("/stats")
                 .queryParam("start", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(start))
                 .queryParam("end", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(end))
