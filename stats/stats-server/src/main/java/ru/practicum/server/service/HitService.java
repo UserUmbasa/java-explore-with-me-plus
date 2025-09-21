@@ -46,11 +46,6 @@ public class HitService {
     }
 
     private void validateDateRange(LocalDateTime start, LocalDateTime end) {
-        // Добавляем проверку на наличие дат
-        if ((start == null && end != null) ||
-                (start != null && end == null)) {
-            throw new IllegalArgumentException("Необходимо указать обе даты или не указывать их вовсе");
-        }
         if (start.isAfter(end)) {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
