@@ -30,7 +30,7 @@ public class PrivateEventController {
             @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer offset,
             @RequestParam(name = "size", defaultValue = "10") @Min(1) Integer limit) {
 
-        log.info("request from user: get all events created by user id:{}", userId);
+        log.info("запрос: получение всех событий, созданных по идентификатору пользователя:{}", userId);
 
         return eventService.findByInitiator(userId, offset, limit);
     }
@@ -39,7 +39,7 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventDtoOut createEvent(@PathVariable @Min(1) Long userId,
                                    @RequestBody @Valid EventCreateDto eventDto) {
-        log.info("request from user: create new event: {}", eventDto);
+        log.info("запрос : создать новое событие: {}", eventDto);
         return eventService.add(userId, eventDto);
     }
 
@@ -48,14 +48,14 @@ public class PrivateEventController {
             @PathVariable @Min(1) Long userId,
             @PathVariable @Min(1) Long eventId,
             @RequestBody @Valid EventUpdateDto eventDto) {
-        log.info("request from user: update event: {}", eventDto);
+        log.info("запрос : событие обновления: {}", eventDto);
         return eventService.update(userId, eventId, eventDto);
     }
 
     @GetMapping("/{userId}/events/{eventId}")
     public EventDtoOut getEventById(@PathVariable @Min(1) Long userId,
                                     @PathVariable @Min(1) Long eventId) {
-        log.info("request from user: get event: {}", eventId);
+        log.info("запрос : получить событие: {}", eventId);
         return eventService.find(userId, eventId);
     }
 }

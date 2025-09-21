@@ -32,13 +32,11 @@ public class UserServiceImpl implements UserService {
     public List<UserDtoOut> getUsers(List<Long> ids, int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<User> users;
-
         if (ids == null || ids.isEmpty()) {
             users = userRepository.findAllWithOffset(pageable);
         } else {
             users = userRepository.findByIdIn(ids, pageable);
         }
-
         return users.stream().map(UserMapper::toDto).collect(Collectors.toList());
     }
 

@@ -71,14 +71,10 @@ public class PublicEventController {
         }
 
         Collection<EventShortDtoOut> events = eventService.findShortEventsBy(filter);
-        // Добавляем запись статистики для списка событий
         String clientIp = getClientIp(request);
-
-        // Статистика для каждого события в списке
         Collection<Long> ids = events.stream()
                 .map(EventShortDtoOut::getId)
                 .toList();
-
         for (Long id : ids) {
             EndpointHitDTO endpointHitDto = EndpointHitDTO.builder()
                     .app("events")
@@ -89,7 +85,6 @@ public class PublicEventController {
             statsClient.saveHit(endpointHitDto);
         }
 
-        // Статистика для общего запроса списка
         EndpointHitDTO listHitDto = EndpointHitDTO.builder()
                 .app("events")
                 .uri("/events")
@@ -104,20 +99,19 @@ public class PublicEventController {
     @GetMapping("/{eventId}")
     public EventDtoOut get(@PathVariable @Min(1) Long eventId,
                            HttpServletRequest request) {
-        log.debug("request for published event id:{}", eventId);
+        log.debug("запрос на публикацию идентификатора события:{}", eventId);
         EventDtoOut dtoOut = eventService.findPublished(eventId);
         //статистика
         EndpointHitDTO endpointHitDto = EndpointHitDTO.builder()
-                .app("events") // название приложения
-                .uri("/events/" + eventId) // URI запроса
-                .ip(getClientIp(request)) // получаем IP клиента
+                .app("events")
+                .uri("/events/" + eventId)
+                .ip(getClientIp(request))
                 .timestamp(LocalDateTime.now().format(FORMATTER))
                 .build();
         statsClient.saveHit(endpointHitDto);
         return dtoOut;
     }
 
-    //IP-адрес
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {

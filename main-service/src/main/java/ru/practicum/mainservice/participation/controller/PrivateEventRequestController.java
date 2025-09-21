@@ -13,9 +13,6 @@ import ru.practicum.mainservice.participation.service.ParticipationRequestServic
 
 import java.util.List;
 
-/**
- * Контроллер для работы с заявками на участие в событиях от лица текущего пользователя.
- */
 @Slf4j
 @RestController
 @RequestMapping("/users/{userId}/events/{eventId}/requests")
@@ -24,14 +21,6 @@ import java.util.List;
 public class PrivateEventRequestController {
     private final ParticipationRequestService requestService;
 
-    /**
-     * Изменяет статус заявок на участие в событии (подтверждение или отклонение).
-     *
-     * @param userId  ID текущего пользователя
-     * @param eventId ID события
-     * @param request объект с новыми статусами и списком ID заявок
-     * @return результат изменения статусов
-     */
     @PatchMapping
     public EventRequestStatusUpdateResult updateRequestStatuses(
             @PathVariable @Min(1) Long userId,
@@ -41,13 +30,6 @@ public class PrivateEventRequestController {
         return requestService.updateRequestStatuses(userId, eventId, request);
     }
 
-    /**
-     * Получает список всех заявок на участие в событии, созданном текущим пользователем.
-     *
-     * @param userId  ID пользователя
-     * @param eventId ID события
-     * @return список DTO заявок
-     */
     @GetMapping
     public List<ParticipationRequestDto> getRequests(@PathVariable @Min(1) Long userId,
                                                      @PathVariable @Min(1) Long eventId) {

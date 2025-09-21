@@ -10,10 +10,6 @@ import ru.practicum.mainservice.compilation.service.CompilationService;
 
 import java.util.List;
 
-/**
- * Публичный REST контроллер для работы с подборками событий (compilations).
- * Позволяет получить список подборок и получить подборку по ID.
- */
 @RestController
 @RequestMapping("/compilations")
 @RequiredArgsConstructor
@@ -22,16 +18,6 @@ public class PublicCompilationController {
 
     private final CompilationService compilationService;
 
-    /**
-     * Получить список подборок событий с возможностью фильтрации по закреплённости,
-     * а также пагинации (пропуск элементов и ограничение размера выборки).
-     *
-     * @param pinned фильтр по закреплённости подборок (true — только закреплённые,
-     *               false — только не закреплённые, null — все)
-     * @param from   количество элементов, которые нужно пропустить (для пагинации), не может быть отрицательным
-     * @param size   максимальное количество элементов в ответе, должно быть положительным
-     * @return список DTO подборок событий, соответствующих фильтрам
-     */
     @GetMapping
     public List<CompilationDto> getCompilations(
             @RequestParam(required = false) Boolean pinned,
@@ -40,12 +26,6 @@ public class PublicCompilationController {
         return compilationService.getCompilations(pinned, from, size);
     }
 
-    /**
-     * Получить подборку событий по её уникальному идентификатору.
-     *
-     * @param compId ID подборки
-     * @return DTO подборки с указанным ID
-     */
     @GetMapping("/{compId}")
     public CompilationDto getCompilation(@PathVariable Long compId) {
         return compilationService.getCompilationById(compId);

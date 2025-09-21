@@ -18,19 +18,19 @@ import static ru.practicum.mainservice.constants.Constants.DATE_TIME_FORMAT;
 @ToString
 public class EventUpdateAdminDto {
 
-    @Size(min = 3, max = 120, message = "The title length must be between 3 and 120 characters")
+    @Size(min = 3, max = 120, message = "Длина заголовка должна составлять от 3 до 120 символов")
     private String title;
 
-    @Size(min = 20, max = 2000, message = "The annotation length must be between 20 and 2000 characters")
+    @Size(min = 20, max = 2000, message = "Длина аннотации должна составлять от 20 до 2000 символов")
     private String annotation;
 
-    @Size(min = 20, max = 7000, message = "The description length must be between 20 and 7000 characters")
+    @Size(min = 20, max = 7000, message = "Длина описания должна составлять от 20 до 7000 символов")
     private String description;
 
     @JsonProperty("category")
     private Long categoryId;
 
-    @Future(message = "The event date must be in future")
+    @Future(message = "Дата проведения мероприятия должна быть назначена в будущем")
     @JsonFormat(pattern = DATE_TIME_FORMAT)
     private LocalDateTime eventDate;
 

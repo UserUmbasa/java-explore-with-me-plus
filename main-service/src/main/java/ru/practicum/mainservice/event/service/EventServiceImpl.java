@@ -50,34 +50,26 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDtoOut add(Long userId, EventCreateDto eventDto) {
-
         validateEventDate(eventDto.getEventDate(), EventState.PENDING);
         Category category = getCategory(eventDto.getCategoryId());
         User user = getUser(userId);
-
         Event event = EventMapper.fromDto(eventDto);
         event.setCategory(category);
         event.setInitiator(user);
-
         event = eventRepository.save(event);
-
         return EventMapper.toDto(event);
     }
 
     @Override
     @Transactional
     public EventDtoOut update(Long userId, Long eventId, EventUpdateDto eventDto) {
-
         Event event = getEvent(eventId);
-
         if (!event.getInitiator().getId().equals(userId)) {
-            throw new NoAccessException("Only initiator can edit the event");
+            throw new NoAccessException("Редактировать событие может только инициатор");
         }
-
         if (event.getState() == EventState.PUBLISHED) {
-            throw new ConditionNotMetException("Cannot update published event");
+            throw new ConditionNotMetException("Не удается обновить опубликованное событие");
         }
-
         Optional.ofNullable(eventDto.getTitle()).ifPresent(event::setTitle);
         Optional.ofNullable(eventDto.getAnnotation()).ifPresent(event::setAnnotation);
         Optional.ofNullable(eventDto.getDescription()).ifPresent(event::setDescription);
@@ -88,26 +80,22 @@ public class EventServiceImpl implements EventService {
         });
         Optional.ofNullable(eventDto.getParticipantLimit()).ifPresent(event::setParticipantLimit);
         Optional.ofNullable(eventDto.getRequestModeration()).ifPresent(event::setRequestModeration);
-
         if (eventDto.getCategoryId() != null
                 && !eventDto.getCategoryId().equals(event.getCategory().getId())) {
             Category category = categoryRepository.findById(eventDto.getCategoryId())
                     .orElseThrow(() -> new NotFoundException("Category", eventDto.getCategoryId()));
             event.setCategory(category);
         }
-
         if (eventDto.getEventDate() != null) {
             validateEventDate(eventDto.getEventDate(), event.getState());
             event.setEventDate(eventDto.getEventDate());
         }
-
         if (eventDto.getStateAction() != null) {
             switch (eventDto.getStateAction()) {
                 case SEND_TO_REVIEW -> event.setState(EventState.PENDING);
                 case CANCEL_REVIEW  -> event.setState(EventState.CANCELED);
             }
         }
-
         Event updated = eventRepository.save(event);
         return EventMapper.toDto(updated);
     }
@@ -127,19 +115,16 @@ public class EventServiceImpl implements EventService {
         });
         Optional.ofNullable(eventDto.getParticipantLimit()).ifPresent(event::setParticipantLimit);
         Optional.ofNullable(eventDto.getRequestModeration()).ifPresent(event::setRequestModeration);
-
         if (eventDto.getEventDate() != null) {
             validateEventDate(eventDto.getEventDate(), event.getState());
             event.setEventDate(eventDto.getEventDate());
         }
-
         if (eventDto.getStateAction() != null) {
             switch (eventDto.getStateAction()) {
                 case PUBLISH_EVENT -> publishEvent(event);
                 case REJECT_EVENT -> rejectEvent(event);
             }
         }
-
         Event saved = eventRepository.save(event);
         return EventMapper.toDto(saved);
     }
@@ -148,15 +133,12 @@ public class EventServiceImpl implements EventService {
     public EventDtoOut findPublished(Long eventId) {
         Event event = eventRepository.findPublishedById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event", eventId));
-        //статистика
         enrichWithStats(event);
         return EventMapper.toDto(event);
     }
 
     private void enrichWithStats(Event event) {
-        //запросы
         enrichWithConfirmedRequestsCount(event);
-        //просмотры
         event.setViews(getViewsCount(event.getId()));
     }
 
@@ -174,17 +156,11 @@ public class EventServiceImpl implements EventService {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User", userId);
         }
-
         Event event = getEvent(eventId);
-
         if (!event.getInitiator().getId().equals(userId)) {
-            throw new NoAccessException("Only initiator can view this event");
+            throw new NoAccessException("Только инициатор может просматривать это событиеOnly initiator can view this event");
         }
-
-//        enrichWithConfirmedRequestsCount(List.of(event));
-//        enrichWithViewsCount(List.of(event));
         enrichWithStats(event);
-
         return EventMapper.toDto(event);
     }
 
@@ -207,9 +183,6 @@ public class EventServiceImpl implements EventService {
 
     private Collection<Event> findBy(Specification<Event> spec, Pageable pageable) {
         Collection<Event> events = eventRepository.findAll(spec, pageable).getContent();
-//        enrichWithConfirmedRequestsCount(events);
-//        enrichWithViewsCount(events);
-
         for (Event event : events) {
             enrichWithStats(event);
         }
@@ -253,14 +226,10 @@ public class EventServiceImpl implements EventService {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User", userId);
         }
-
         Collection<Event> events = eventRepository.findByInitiatorId(userId, offset, limit);
-//        enrichWithConfirmedRequestsCount(events);
-//        enrichWithViewsCount(events);
         for (Event event : events) {
             enrichWithStats(event);
         }
-
         return events.stream()
                 .map(EventMapper::toShortDto)
                 .toList();
@@ -268,22 +237,19 @@ public class EventServiceImpl implements EventService {
 
     private void enrichWithConfirmedRequestsCount(Event event) {
         if (event == null) return;
-
         int count = requestRepository.countConfirmedRequestsForEvent(event.getId());
         event.setConfirmedRequests(count);
     }
 
     private void validateEventDate(LocalDateTime eventDate, EventState state) {
         if (eventDate == null) {
-            throw new IllegalArgumentException("eventDate is null");
+            throw new IllegalArgumentException("Значение EventDate равно нулю");
         }
-
         int hours = state == EventState.PUBLISHED
                 ? MIN_TIME_TO_PUBLISHED_EVENT
                 : MIN_TIME_TO_UNPUBLISHED_EVENT;
-
         if (eventDate.isBefore(LocalDateTime.now().plusHours(hours))) {
-            String message = "The event date must be no earlier than %d hours from the %s time"
+            String message = "Дата события должна быть не ранее, чем через несколько часов после даты события"
                 .formatted(hours, state == EventState.PUBLISHED ? "publishing" : "current");
             throw new ConditionNotMetException(message);
         }
@@ -307,21 +273,18 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("Event", eventId));
     }
 
-
     private void publishEvent(Event event) {
         if (event.getState() != EventState.PENDING) {
-            throw new ConditionNotMetException("Events must be in 'pending' status to be published");
+            throw new ConditionNotMetException("Для публикации события должны иметь статус ожидающие");
         }
-
         validateEventDate(event.getEventDate(), EventState.PUBLISHED);
-
         event.setState(EventState.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
     }
 
     private void rejectEvent(Event event) {
         if (event.getState() == EventState.PUBLISHED) {
-            throw new ConditionNotMetException("Published events cannot be rejected");
+            throw new ConditionNotMetException("Опубликованные события не могут быть отклонены");
         }
         event.setState(EventState.CANCELED);
     }
