@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.mainservice.participation.model.ParticipationRequest;
 import ru.practicum.mainservice.participation.model.RequestStatus;
-import ru.practicum.mainservice.participation.model.RequestsCount;
 
 import java.util.List;
 

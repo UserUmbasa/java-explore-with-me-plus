@@ -19,7 +19,6 @@ import ru.practicum.mainservice.event.repository.EventRepository;
 import ru.practicum.mainservice.exception.ConditionNotMetException;
 import ru.practicum.mainservice.exception.NoAccessException;
 import ru.practicum.mainservice.exception.NotFoundException;
-import ru.practicum.mainservice.participation.model.RequestsCount;
 import ru.practicum.mainservice.participation.repository.ParticipationRequestRepository;
 import ru.practicum.mainservice.user.model.User;
 import ru.practicum.mainservice.user.repository.UserRepository;
@@ -27,7 +26,6 @@ import ru.practicum.statsclient.client.StatsClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ru.practicum.mainservice.constants.Constants.STATS_EVENTS_URL;
