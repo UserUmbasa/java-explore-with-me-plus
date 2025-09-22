@@ -1,6 +1,9 @@
 package ru.practicum.mainservice.category.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainservice.category.dto.CategoryDto;
@@ -23,7 +26,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Collection<CategoryDtoOut> getAll(Integer offset, Integer limit) {
-        Collection<Category> categories = categoryRepository.findWithOffsetAndLimit(offset, limit);
+
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        Page<Category> categoriesPage = categoryRepository.findAllByOrderById(pageable);
+        Collection<Category> categories = categoriesPage.getContent();
+
         return categories.stream()
                 .map(CategoryMapper::toDto)
                 .toList();
@@ -32,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDtoOut get(Long id) {
         Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Category", id));
+                .orElseThrow(() -> new NotFoundException("Category", id));
 
         return CategoryMapper.toDto(category);
     }
