@@ -2,7 +2,10 @@ package ru.practicum.mainservice.event.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -226,7 +229,11 @@ public class EventServiceImpl implements EventService {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User", userId);
         }
-        Collection<Event> events = eventRepository.findByInitiatorId(userId, offset, limit);
+
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by("id"));
+        Page<Event> eventPage = eventRepository.findByInitiatorId(userId, pageable);
+        List<Event> events = eventPage.getContent();
+
         for (Event event : events) {
             enrichWithStats(event);
         }
