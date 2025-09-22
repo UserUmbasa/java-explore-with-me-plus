@@ -33,9 +33,9 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PageRequest.of(from / size, size);
         List<User> users;
         if (ids == null || ids.isEmpty()) {
-            users = userRepository.findAllWithOffset(pageable);
+            users = userRepository.findUsers(null, pageable);
         } else {
-            users = userRepository.findByIdIn(ids, pageable);
+            users = userRepository.findUsers(ids, pageable);
         }
         return users.stream().map(UserMapper::toDto).collect(Collectors.toList());
     }
