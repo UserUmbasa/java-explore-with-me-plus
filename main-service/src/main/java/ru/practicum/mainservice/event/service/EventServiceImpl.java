@@ -259,9 +259,11 @@ public class EventServiceImpl implements EventService {
     }
 
     private void enrichWithConfirmedRequestsCount(Event event) {
-        if (event == null) return;
-        int count = requestRepository.countConfirmedRequestsForEvent(event.getId());
+        if (event == null) {
+            return;
+        }
 
+        int count = requestRepository.countConfirmedRequestsForEvent(event.getId());
         event.setConfirmedRequests(count);
     }
 
