@@ -29,6 +29,7 @@ import ru.practicum.statsclient.client.StatsClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ru.practicum.mainservice.constants.Constants.STATS_EVENTS_URL;
@@ -96,7 +97,7 @@ public class EventServiceImpl implements EventService {
         if (eventDto.getStateAction() != null) {
             switch (eventDto.getStateAction()) {
                 case SEND_TO_REVIEW -> event.setState(EventState.PENDING);
-                case CANCEL_REVIEW  -> event.setState(EventState.CANCELED);
+                case CANCEL_REVIEW -> event.setState(EventState.CANCELED);
             }
         }
         Event updated = eventRepository.save(event);
@@ -145,6 +146,25 @@ public class EventServiceImpl implements EventService {
         event.setViews(getViewsCount(event.getId()));
     }
 
+    void enrichWithStats2(Collection<Event> events) {
+        if (events == null || events.isEmpty()) return;
+        enrichWithConfirmedRequestsCount2(events);
+
+        Map<Long, Long> eventViewsMap = events.stream()
+                .collect(Collectors.toMap(
+                        Event::getId,
+                        event -> {
+                            Long views = getViewsCount(event.getId());
+                            event.setViews(views);
+                            return views;
+                        }
+                ));
+
+        events.forEach(event ->
+                event.setViews(eventViewsMap.getOrDefault(event.getId(), event.getViews()))
+        );
+    }
+
     private Long getViewsCount(Long eventId) {
         List<ViewStatsDTO> result = statsClient.getStats(
                 LocalDateTime.now().minusYears(10),
@@ -186,9 +206,7 @@ public class EventServiceImpl implements EventService {
 
     private Collection<Event> findBy(Specification<Event> spec, Pageable pageable) {
         Collection<Event> events = eventRepository.findAll(spec, pageable).getContent();
-        for (Event event : events) {
-            enrichWithStats(event);
-        }
+        enrichWithStats2(events);
         return events;
     }
 
@@ -233,10 +251,8 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by("id"));
         Page<Event> eventPage = eventRepository.findByInitiatorId(userId, pageable);
         List<Event> events = eventPage.getContent();
+        enrichWithStats2(events);
 
-        for (Event event : events) {
-            enrichWithStats(event);
-        }
         return events.stream()
                 .map(EventMapper::toShortDto)
                 .toList();
@@ -245,7 +261,31 @@ public class EventServiceImpl implements EventService {
     private void enrichWithConfirmedRequestsCount(Event event) {
         if (event == null) return;
         int count = requestRepository.countConfirmedRequestsForEvent(event.getId());
+
         event.setConfirmedRequests(count);
+    }
+
+    @Transactional(readOnly = true)
+    void enrichWithConfirmedRequestsCount2(Collection<Event> events) {
+
+        if (events == null) return;
+
+        List<Long> eventsId = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        List<Object[]> requestsCountsList = requestRepository.findConfirmedRequestCountsByEventIds(eventsId);
+
+        Map<Long, Integer> countsMap = requestsCountsList.stream()
+                .collect(Collectors.toMap(
+                        arr -> (Long) arr[0],
+                        arr -> ((Long) arr[1]).intValue()
+                ));
+
+        events.forEach(event -> {
+            Integer count = countsMap.getOrDefault(event.getId(), 0);
+            event.setConfirmedRequests(count);
+        });
     }
 
     private void validateEventDate(LocalDateTime eventDate, EventState state) {
@@ -257,7 +297,7 @@ public class EventServiceImpl implements EventService {
                 : MIN_TIME_TO_UNPUBLISHED_EVENT;
         if (eventDate.isBefore(LocalDateTime.now().plusHours(hours))) {
             String message = "Дата события должна быть не ранее, чем через несколько часов после даты события"
-                .formatted(hours, state == EventState.PUBLISHED ? "publishing" : "current");
+                    .formatted(hours, state == EventState.PUBLISHED ? "publishing" : "current");
             throw new ConditionNotMetException(message);
         }
     }
