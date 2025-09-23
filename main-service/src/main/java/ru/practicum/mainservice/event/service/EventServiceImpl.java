@@ -146,9 +146,9 @@ public class EventServiceImpl implements EventService {
         event.setViews(getViewsCount(event.getId()));
     }
 
-    void enrichWithStats2(Collection<Event> events) {
+    void enrichWithStatsCollection(Collection<Event> events) {
         if (events == null || events.isEmpty()) return;
-        enrichWithConfirmedRequestsCount2(events);
+        enrichWithConfirmedRequestsCountCollection(events);
 
         Map<Long, Long> eventViewsMap = events.stream()
                 .collect(Collectors.toMap(
@@ -206,7 +206,7 @@ public class EventServiceImpl implements EventService {
 
     private Collection<Event> findBy(Specification<Event> spec, Pageable pageable) {
         Collection<Event> events = eventRepository.findAll(spec, pageable).getContent();
-        enrichWithStats2(events);
+        enrichWithStatsCollection(events);
         return events;
     }
 
@@ -251,7 +251,7 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by("id"));
         Page<Event> eventPage = eventRepository.findByInitiatorId(userId, pageable);
         List<Event> events = eventPage.getContent();
-        enrichWithStats2(events);
+        enrichWithStatsCollection(events);
 
         return events.stream()
                 .map(EventMapper::toShortDto)
@@ -266,7 +266,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional(readOnly = true)
-    void enrichWithConfirmedRequestsCount2(Collection<Event> events) {
+    void enrichWithConfirmedRequestsCountCollection(Collection<Event> events) {
 
         if (events == null) return;
 
