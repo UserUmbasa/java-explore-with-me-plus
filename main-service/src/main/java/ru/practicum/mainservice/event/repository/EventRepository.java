@@ -18,9 +18,9 @@ public interface EventRepository extends
     Page<Event> findByInitiatorId(@Param("userId") Long userId, Pageable pageable);
 
     @Query(value = """
-        SELECT e FROM Event e
-        WHERE e.id = :id AND e.state = 'PUBLISHED'
-        """)
+            SELECT e FROM Event e
+            WHERE e.id = :id AND e.state = 'PUBLISHED'
+            """)
     Optional<Event> findPublishedById(@Param("id") Long id);
 
     boolean existsByCategoryId(Long categoryId);

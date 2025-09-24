@@ -1,6 +1,10 @@
 package ru.practicum.mainservice.event.service;
 
-import ru.practicum.mainservice.event.dto.*;
+import ru.practicum.mainservice.event.dto.EventCreateDto;
+import ru.practicum.mainservice.event.dto.EventDtoOut;
+import ru.practicum.mainservice.event.dto.EventShortDtoOut;
+import ru.practicum.mainservice.event.dto.EventUpdateAdminDto;
+import ru.practicum.mainservice.event.dto.EventUpdateDto;
 import ru.practicum.mainservice.event.model.EventAdminFilter;
 import ru.practicum.mainservice.event.model.EventFilter;
 
