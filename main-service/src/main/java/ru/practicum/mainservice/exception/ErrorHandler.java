@@ -105,7 +105,6 @@ public class ErrorHandler {
                 .build();
     }
 
-
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse onDataIntegrityViolationException(final DataIntegrityViolationException e) {

@@ -1,6 +1,11 @@
 package ru.practicum.mainservice.event.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -44,7 +49,6 @@ public class EventFilter {
 
     @Builder.Default
     private EventState state = EventState.PUBLISHED;
-
 
     public Pageable getPageable() {
         if (pageable == null) {

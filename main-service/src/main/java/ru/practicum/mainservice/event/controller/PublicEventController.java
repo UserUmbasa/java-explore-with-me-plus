@@ -7,7 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.EndpointHitDTO;
 import ru.practicum.mainservice.event.dto.EventDtoOut;
 import ru.practicum.mainservice.event.dto.EventShortDtoOut;
@@ -21,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.practicum.mainservice.constants.Constants.DATE_TIME_FORMAT;
 
@@ -36,7 +42,6 @@ public class PublicEventController {
     private final StatsClient statsClient;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    // Получение событий с возможностью фильтрации
     @GetMapping
     public Collection<EventShortDtoOut> getEvents(
             @Size(min = 3, max = 1000, message = "Текст должен быть длиной от 3 до 1000 символов")
@@ -72,26 +77,28 @@ public class PublicEventController {
 
         Collection<EventShortDtoOut> events = eventService.findShortEventsBy(filter);
         String clientIp = getClientIp(request);
-        Collection<Long> ids = events.stream()
-                .map(EventShortDtoOut::getId)
-                .toList();
-        for (Long id : ids) {
-            EndpointHitDTO endpointHitDto = EndpointHitDTO.builder()
-                    .app("events")
-                    .uri("/events/" + id)
-                    .ip(clientIp)
-                    .timestamp(LocalDateTime.now().format(FORMATTER))
-                    .build();
-            statsClient.saveHit(endpointHitDto);
-        }
+        String timestamp = LocalDateTime.now().format(FORMATTER);
 
-        EndpointHitDTO listHitDto = EndpointHitDTO.builder()
+        // Создаем хиты для списка событий и отдельных событий одним пакетом
+        List<EndpointHitDTO> hits = events.stream()
+                .map(event -> EndpointHitDTO.builder()
+                        .app("events")
+                        .uri("/events/" + event.getId())
+                        .ip(clientIp)
+                        .timestamp(timestamp)
+                        .build())
+                .collect(Collectors.toList());
+
+        // Добавляем хит для главной страницы событий
+        hits.add(EndpointHitDTO.builder()
                 .app("events")
                 .uri("/events")
                 .ip(clientIp)
-                .timestamp(LocalDateTime.now().format(FORMATTER))
-                .build();
-        statsClient.saveHit(listHitDto);
+                .timestamp(timestamp)
+                .build());
+
+        // Отправляем все хиты одним запросом
+        saveHitsBatch(hits);
 
         return events;
     }
@@ -101,15 +108,38 @@ public class PublicEventController {
                            HttpServletRequest request) {
         log.debug("запрос на публикацию идентификатора события:{}", eventId);
         EventDtoOut dtoOut = eventService.findPublished(eventId);
-        //статистика
+
+        String clientIp = getClientIp(request);
+        String timestamp = LocalDateTime.now().format(FORMATTER);
+
         EndpointHitDTO endpointHitDto = EndpointHitDTO.builder()
                 .app("events")
                 .uri("/events/" + eventId)
-                .ip(getClientIp(request))
-                .timestamp(LocalDateTime.now().format(FORMATTER))
+                .ip(clientIp)
+                .timestamp(timestamp)
                 .build();
+
         statsClient.saveHit(endpointHitDto);
+
         return dtoOut;
+    }
+
+    private void saveHitsBatch(List<EndpointHitDTO> hits) {
+        if (hits.isEmpty()) {
+            return;
+        }
+        try {
+            statsClient.saveHits(hits); // Используем пакетный метод
+        } catch (Exception e) {
+            log.warn("Batch save failed, falling back to single saves: {}", e.getMessage());
+            for (EndpointHitDTO hit : hits) {
+                try {
+                    statsClient.saveHit(hit);
+                } catch (Exception ex) {
+                    log.error("Failed to save hit: {}", ex.getMessage());
+                }
+            }
+        }
     }
 
     private String getClientIp(HttpServletRequest request) {
@@ -125,5 +155,5 @@ public class PublicEventController {
         }
         return ip;
     }
-
 }
+

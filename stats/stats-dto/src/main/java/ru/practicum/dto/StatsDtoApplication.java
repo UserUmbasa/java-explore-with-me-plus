@@ -9,5 +9,4 @@ public class StatsDtoApplication {
     public static void main(String[] args) {
         SpringApplication.run(StatsDtoApplication.class, args);
     }
-
 }

@@ -5,6 +5,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.dto.EndpointHitDTO;
 import ru.practicum.dto.ViewStatsDTO;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -12,20 +13,45 @@ import java.util.List;
 
 public abstract class StatsClient {
     private final RestClient restClient;
+    private final String serverUrl;
 
     public StatsClient(String serverUrl) {
-        restClient = RestClient.builder()
+        this.serverUrl = serverUrl;
+        this.restClient = RestClient.builder()
                 .baseUrl(serverUrl)
                 .build();
     }
 
-    public void saveHit(EndpointHitDTO endpointHitDto) {
-        restClient.post()
-                .uri("/hit")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(endpointHitDto)
-                .retrieve()
-                .toBodilessEntity();
+    public void saveHit(EndpointHitDTO endpointHitDTO) {
+        try {
+            restClient.post()
+                    .uri("/hit")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(endpointHitDTO)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception e) {
+            System.err.println("Failed to save hit: " + e.getMessage());
+        }
+    }
+
+    public void saveHits(List<EndpointHitDTO> hits) {
+        if (hits == null || hits.isEmpty()) {
+            return;
+        }
+
+        try {
+            restClient.post()
+                    .uri("/hit/batch")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(hits)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception e) {
+            for (EndpointHitDTO hit : hits) {
+                saveHit(hit);
+            }
+        }
     }
 
     public List<ViewStatsDTO> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
@@ -46,7 +72,7 @@ public abstract class StatsClient {
                 .retrieve()
                 .body(ViewStatsDTO[].class);
 
-        return Arrays.asList(response);
+        return response != null ? Arrays.asList(response) : List.of();
     }
 
     private void validateDates(LocalDateTime start, LocalDateTime end) {

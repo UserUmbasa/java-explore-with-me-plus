@@ -79,5 +79,4 @@ public class EventSpecifications {
         return rangeEnd == null ? null : (root, query, cb) ->
                 cb.lessThanOrEqualTo(root.get("eventDate"), rangeEnd);
     }
-
 }
