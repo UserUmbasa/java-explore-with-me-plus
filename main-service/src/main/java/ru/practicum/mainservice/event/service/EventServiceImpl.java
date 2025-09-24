@@ -152,20 +152,26 @@ public class EventServiceImpl implements EventService {
     }
 
     private void enrichWithStats(List<Event> events) {
-        if (events == null || events.isEmpty()) return;
+        if (events == null || events.isEmpty()) {
+            return;
+        }
         enrichEventsWithConfirmedRequests(events);
         enrichWithViewsCountCollection(events);
     }
 
     void enrichWithStatsCollection(Collection<Event> events) {
-        if (events == null || events.isEmpty()) return;
+        if (events == null || events.isEmpty()) {
+            return;
+        }
         List<Event> eventList = new ArrayList<>(events);
         enrichEventsWithConfirmedRequests(eventList);
         enrichWithViewsCountCollection(eventList);
     }
 
     private void enrichWithViewsCountCollection(Collection<Event> events) {
-        if (events.isEmpty()) return;
+        if (events.isEmpty()) {
+            return;
+        }
 
         List<Long> eventIds = events.stream()
                 .map(Event::getId)
@@ -227,7 +233,7 @@ public class EventServiceImpl implements EventService {
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NoAccessException("Только инициатор может просматривать это событие");
         }
-        enrichWithStats(Collections.singletonList(event)); // Исправлено: передаем список
+        enrichWithStats(Collections.singletonList(event));
         return EventMapper.toDto(event);
     }
 
@@ -303,18 +309,13 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     void enrichEventsWithConfirmedRequests(Collection<Event> events) {
-
         if (events == null || events.isEmpty()) {
             return;
         }
-
         Map<Long, Integer> confirmedRequestsCounts = getConfirmedRequestsCountsByEventIds(events);
         applyConfirmedRequestsCountsToEvents(events, confirmedRequestsCounts);
     }
 
-    /**
-     * Получает количество подтвержденных запросов для списка идентификаторов событий
-     */
     private Map<Long, Integer> getConfirmedRequestsCountsByEventIds(Collection<Event> events) {
         List<Long> eventIds = events.stream()
                 .map(Event::getId)
@@ -328,14 +329,11 @@ public class EventServiceImpl implements EventService {
 
         return requestsCountsList.stream()
                 .collect(Collectors.toMap(
-                        arr -> ((Number) arr[0]).longValue(),   // безопасный кастинг
-                        arr -> ((Number) arr[1]).intValue()     // безопасный кастинг
+                        arr -> ((Number) arr[0]).longValue(),
+                        arr -> ((Number) arr[1]).intValue()
                 ));
     }
 
-    /**
-     * Применяет полученные счетчики к событиям
-     */
     private void applyConfirmedRequestsCountsToEvents(Collection<Event> events, Map<Long, Integer> countsMap) {
         events.forEach(event -> {
             Integer count = countsMap.getOrDefault(event.getId(), 0);
