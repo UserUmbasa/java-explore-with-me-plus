@@ -37,7 +37,6 @@ public class HitService {
     @Transactional(readOnly = true)
     public List<ViewStatsDTO> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         validateDateRange(start, end);
-
         if (Boolean.TRUE.equals(unique)) {
             return hitRepository.getUniqueStats(start, end, uris);
         } else {
