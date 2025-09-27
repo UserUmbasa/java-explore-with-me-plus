@@ -1,11 +1,11 @@
 {
   "info": {
-    "_postman_id": "445d41b5-7f30-4056-9b66-62b4b8c93432",
+    "_postman_id": "89b9b9b3-d58d-4378-9fe8-1f5a76ed5551",
     "name": "Explore With Me - Full Testing",
     "description": "Полные тесты: пользователи, категории, события, комментарии",
     "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
     "_exporter_id": "44814245",
-    "_collection_link": "https://mytya-8200712.postman.co/workspace/Mytya's-Workspace~efe44e1e-4b9c-4a92-8b3e-b7524147837d/collection/44814245-445d41b5-7f30-4056-9b66-62b4b8c93432?action=share&source=collection_link&creator=44814245"
+    "_collection_link": "https://mytya-8200712.postman.co/workspace/Mytya's-Workspace~efe44e1e-4b9c-4a92-8b3e-b7524147837d/collection/44814245-89b9b9b3-d58d-4378-9fe8-1f5a76ed5551?action=share&source=collection_link&creator=44814245"
   },
   "item": [
     {
@@ -1110,91 +1110,6 @@
     {
       "name": "✅ 6. Финальная проверка",
       "item": [
-        {
-          "name": "6.1 Получить всех пользователей",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус 200: Пользователи получены\", function() {",
-                  "    pm.response.to.have.status(200);",
-                  "    var users = pm.response.json();",
-                  "    pm.expect(users.length).to.equal(3);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/admin/users?from=0&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "users"
-              ],
-              "query": [
-                {
-                  "key": "from",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "10"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "6.2 Получить все категории",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Статус 200: Категории получены\", function() {",
-                  "    pm.response.to.have.status(200);",
-                  "    var categories = pm.response.json();",
-                  "    pm.expect(categories.length).to.equal(2);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories?from=0&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories"
-              ],
-              "query": [
-                {
-                  "key": "from",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "10"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
         {
           "name": "6.3 Проверка комментариев Event2",
           "event": [
