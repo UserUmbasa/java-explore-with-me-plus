@@ -29,7 +29,6 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-
     @GetMapping("/categories")
     public Collection<CategoryDtoOut> getCategories(
             @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer offset,
@@ -42,7 +41,6 @@ public class CategoryController {
     public CategoryDtoOut getCategory(@PathVariable @Min(1) Long id) {
         return categoryService.get(id);
     }
-
 
     @PostMapping("/admin/categories")
     @ResponseStatus(HttpStatus.CREATED)
