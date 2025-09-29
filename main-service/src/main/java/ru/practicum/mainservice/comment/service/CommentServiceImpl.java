@@ -38,15 +38,12 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto createComment(Long userId, Long eventId, CommentCreateDto commentCreateDto) {
         log.info("Создание комментария пользователем {} к событию {}", userId, eventId);
 
-        // Получаем пользователя (автора комментария)
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User", userId));
 
-        // Проверяем существование события
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event", eventId));
 
-        // Проверяем, что событие опубликовано
         if (event.getState() != EventState.PUBLISHED) {
             throw new ConditionNotMetException("Нельзя оставлять комментарии к неопубликованному событию");
         }
@@ -72,7 +69,6 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Comment", commentId));
 
-        // Проверяем, что пользователь является автором комментария
         if (!comment.getUser().getId().equals(userId)) {
             throw new NoAccessException("Редактировать можно только свои комментарии");
         }
@@ -123,7 +119,6 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Comment", commentId));
 
-        // Для публичного доступа скрываем удаленные комментарии
         if (comment.getStatus() == CommentStatus.DELETED) {
             throw new NotFoundException("Comment", commentId);
         }
@@ -135,12 +130,10 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentDto> getEventComments(Long eventId, Pageable pageable) {
         log.info("Получение комментариев события {}", eventId);
 
-        // Проверяем существование события
         if (!eventRepository.existsById(eventId)) {
             throw new NotFoundException("Event", eventId);
         }
 
-        // Только активные комментарии для публичного доступа
         List<CommentStatus> activeStatuses = List.of(CommentStatus.PUBLISHED, CommentStatus.EDITED);
         return commentRepository
                 .findByEventIdAndStatusInOrderByCreatedAtDesc(eventId, activeStatuses, pageable)
@@ -154,12 +147,10 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentDto> getUserComments(Long userId, Pageable pageable) {
         log.info("Получение комментариев пользователя {}", userId);
 
-        // Проверяем существование пользователя
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User", userId);
         }
 
-        // Пользователь видит все свои комментарии кроме удаленных
         return commentRepository
                 .findByUserIdAndStatusNotOrderByCreatedAtDesc(userId, CommentStatus.DELETED, pageable)
                 .getContent()
@@ -172,10 +163,8 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentDto> getCommentsAdmin(List<Long> events, List<Long> users, Pageable pageable) {
         log.info("Получение комментариев админом events: {}, users: {}", events, users);
 
-        // Админ видит все комментарии
-        List<CommentStatus> allStatuses = List.of(CommentStatus.PUBLISHED, CommentStatus.EDITED, CommentStatus.DELETED);
         return commentRepository
-                .findByEventIdInAndUserIdInAndStatusInOrderByCreatedAtDesc(events, users, allStatuses, pageable)
+                .findByEventIdInAndUserIdInOrderByCreatedAtDesc(events, users, pageable)
                 .getContent()
                 .stream()
                 .map(CommentMapper::toDto)

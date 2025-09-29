@@ -62,7 +62,7 @@ public class EventSpecifications {
             return null;
         }
         return (root, query, cb) -> cb.or(
-                cb.equal(root.get("participantLimit"), 0),  // Нет лимита
+                cb.equal(root.get("participantLimit"), 0),
                 cb.greaterThan(
                         root.get("participantLimit"),
                         root.get("confirmedRequests")

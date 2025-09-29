@@ -27,7 +27,7 @@ public class ErrorHandler {
                 .getFieldErrors()
                 .stream()
                 .map(FieldError::getDefaultMessage)
-                .filter(Objects::nonNull)  // Фильтруем null значения
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElse("Validation failed");
 
