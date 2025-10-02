@@ -79,7 +79,6 @@ public class PublicEventController {
         String clientIp = getClientIp(request);
         String timestamp = LocalDateTime.now().format(FORMATTER);
 
-        // Создаем хиты для списка событий и отдельных событий одним пакетом
         List<EndpointHitDTO> hits = events.stream()
                 .map(event -> EndpointHitDTO.builder()
                         .app("events")
@@ -89,7 +88,6 @@ public class PublicEventController {
                         .build())
                 .collect(Collectors.toList());
 
-        // Добавляем хит для главной страницы событий
         hits.add(EndpointHitDTO.builder()
                 .app("events")
                 .uri("/events")
@@ -97,7 +95,6 @@ public class PublicEventController {
                 .timestamp(timestamp)
                 .build());
 
-        // Отправляем все хиты одним запросом
         saveHitsBatch(hits);
 
         return events;
@@ -129,7 +126,7 @@ public class PublicEventController {
             return;
         }
         try {
-            statsClient.saveHits(hits); // Используем пакетный метод
+            statsClient.saveHits(hits);
         } catch (Exception e) {
             log.warn("Batch save failed, falling back to single saves: {}", e.getMessage());
             for (EndpointHitDTO hit : hits) {
